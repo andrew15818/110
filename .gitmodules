@@ -1,0 +1,3 @@
+[submodule "fall/data_mining_homework/IBMGenerator"]
+	path = fall/data_mining_homework/IBMGenerator
+	url = https://github.com/zakimjz/IBMGenerator.git
