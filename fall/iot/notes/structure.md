@@ -208,9 +208,11 @@ The Application Entity(AE) contains resources for subscriptions and buffering ''
 Inside the container (common to the AE and CSE) is where the data for the entity is stored.
 
 There are a couple of types of resources: **normal resources**, **virtual resources**, and **announced resources**.
+Virtual resources are used to trigger resources and retrieve results, but don't have definite representation in the CSE.
+Announces resources exist on some remote CSE
 ...
 
 Subscriptions make resources notify other resources when some change happens. 
 This avoids the need of constant polling the resource consantly to check for changes.
-# Cybersecurity
 
+# Cybersecurity
