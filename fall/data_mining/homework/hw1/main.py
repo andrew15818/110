@@ -1,4 +1,5 @@
 import argparse
+import itertools
 import copy
 
 from hashtree import Node, HashTree
@@ -20,9 +21,13 @@ def parseArgs():
     return args 
 
 def get_dataset(filename):
+    parsed = []
     with open(filename, 'r') as file:
         data = file.readlines()
-    return data
+       
+        for transaction in data:
+            parsed.append(get_transaction_entries(transaction))
+    return parsed
 
 # TODO: Add support for differently-formated files
 def get_transaction_entries(transaction):
@@ -32,7 +37,7 @@ def get_transaction_entries(transaction):
         return transaction.split()[1:]
 
 # Get the 1-frequent itemsets
-def get_1_itemsets(dataset):
+def gen_1_itemsets(dataset):
 
     min_support = int(len(dataset) / 1000)
     # Can we use a list instead to maintain lexi ordering?
@@ -40,9 +45,8 @@ def get_1_itemsets(dataset):
     cnd = [0] * len(dataset)
     print(f"Minimum support is {min_support}")
 
-    for transaction in dataset:
-        trans_items = get_transaction_entries(transaction)
-        print(trans_items) 
+    for trans_items in dataset:
+        #trans_items = get_transaction_entries(transaction)
         for item in trans_items:
             # keep count
             candidates[item] = 0 if item not in candidates else candidates[item] + 1
@@ -55,36 +59,59 @@ def get_1_itemsets(dataset):
     return L1
 
 # Check if the first k-2 items are similar 
-def common_sublist(l1, l2):
+def share_common_prefix(l1, l2):
     for i in range(len(l1)-2):
         if l1[i] != l2[i]:
             return False 
     return True 
-
-def get_candidate_itemsets(LK_minus_one):
-    htree = HashTree()
+# Generate all the candidate itemsets
+def gen_candidate_itemsets(LK_minus_one, htree):
 
     candidates = []
     for l1 in LK_minus_one:
         for l2 in LK_minus_one:
             # Possible candidate
-            if common_sublist(l1, l2) and (l1[-1] < l2[-1]):
-                #print(f'{l1} and {l2} share common sublist.')
+            if share_common_prefix(l1, l2) and (l1[-1] < l2[-1]):
                 c =  [i for i in l1]
                 c.append(l2[-1])
-                print(c)
-                # Check if candidate is frequent subset, prune otherwise
-                # in hash tree
-                htree.insert(c, support=1)
+                #print(f"Inserting {c}")
+                htree.insert(tuple(c))
+                candidates.append(c)
 
     return candidates
 
+# Return all k-subsets of a transaciton
+def gen_k_subsets(transaction: tuple, k:int) -> list:
+    return itertools.combinations(transaction, k)
+
+def get_frequent_itemsets(dataset, htree, k=2, min_sup=1):
+    for transaction in dataset:
+        # 1. Generate k-length subsets
+        subsets = gen_k_subsets(tuple(transaction), k) 
+        for subset in subsets:
+            # 2. Add support for each subset
+            htree.add_subset_support(htree.root, subset, index=0)
+    # 3. Return those with min_support
+    frequent_items = []
+    # TODO: Change the min sup
+    htree.get_frequent_itemsets(htree.root, frequent_items, 2)
+    print(frequent_items)
+
 
 def apriori(dataset):
-    L1 = get_1_itemsets(dataset)
+    L1 = gen_1_itemsets(dataset)
     LK_minus_one = L1
-    CK = get_candidate_itemsets(LK_minus_one)
-    print(CK)
+    htree = HashTree()
+    min_support = int(len(dataset) / 1000)
+
+    CK = gen_candidate_itemsets(LK_minus_one, htree)
+
+    # Scan database for support count of each candidate
+    # TODO: Have the increase support and gen freq items under one function?
+    get_frequent_itemsets(dataset, htree)
+
+    htree._print_tree(htree.root)
+    #print(CK)
 
         
 

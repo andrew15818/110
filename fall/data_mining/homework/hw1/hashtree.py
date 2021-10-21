@@ -17,48 +17,73 @@ class HashTree:
         self.root = Node() 
 
     # Calls the actual insert method
-    def insert(self, itemset, support=1):
+    def insert(self, itemset, support=0):
         self.insert_recursively(self.root, itemset, support)
 
     # Insert leaf node or split node if too big
-    def insert_recursively(self, node, itemset: tuple, support=1, index=0):
-        hash_index = self.hash(node, itemset)
+    def insert_recursively(self, node, itemset: tuple, support=0, index=0):
+       
         if index == len(itemset):
-            node.buckets[itemset] += support
+            node.buckets[itemset]+= support
+            node.cum_support += support 
             return 
-
+        hash_index = self.hash(index, itemset)
         if not node.is_leaf:
-            self.insert_recursively(node.children[hash_index], itemset, index=node.index+1)
+            self.insert_recursively(node.children[hash_index], itemset, index=index+1)
         else:
             # Only the leaf nodes have buckets
-            if itemset in node.buckets:
+            #print(f'\tChecking if {itemset} in {node.buckets.keys()}')
+            if itemset in node.buckets.keys():
                 node.buckets[itemset] += support 
+                node.cum_support += support
+                #print(node.buckets[itemset])
             else:
+                #print(f"Adding {itemset} with suppor,t {support}")
                 node.buckets[itemset] = support
 
             # Create a new node if too manybuckets
             if len(node.buckets) == node.max_leaf_nodes:
-                node.is_leaf = False
-                print(node.buckets)
+                node.is_leaf = False 
+                #print(node.buckets)
                 for old_item, old_support in node.buckets.items():
                     node.cum_support += old_support
-                    old_hash = self.hash(node, old_item)
+                    old_hash = self.hash(index , old_item)
                     node.children[old_hash].index = node.index + 1
-                    self.insert_recursively(node.children[old_hash], old_item, old_support, index=node.index+1)
-                del node.buckets
+                    self.insert_recursively(node.children[old_hash], old_item, old_support, index=index+1)
+                #del node.buckets
 
     def _print_tree(self, node): 
 
         for hash_index, child in node.children.items():
-            print('Going to next child')
+            #print(f'\t Going to child {hash_index}, support: {node.cum_support}')
             self._print_tree(child)
 
         if node.is_leaf:
-            print(f'{node.buckets}')
+            print(f'{node.buckets}, support: {node.cum_support}')
+        #print('\tReturning')
 
-    def hash(self, node, item):
+    def hash(self, index, item, max_leaf_nodes=3):
         # Hash based on the digit of the number
         # To avoid index error
-        check_digit = node.index % len(item)
-        return int(item[check_digit]) % node.max_leaf_nodes
+        return int(item[index]) % max_leaf_nodes
+
+    def add_subset_support(self, node, itemset, index=0):
+        if node.is_leaf:
+            if itemset in node.buckets:
+                node.buckets[itemset] += 1
+                #print(f'\tSupport for {itemset}: {node.buckets[itemset]}')
+        else:
+            hsh = self.hash(index , itemset)
+            self.add_subset_support(node.children[hsh], itemset, index+1)
+                
+        
+    def get_frequent_itemsets(self, node, frequent_items, min_sup):
+        if node.is_leaf:
+            for item, sup in node.buckets.items():
+                if int(sup) >= min_sup:
+                    frequent_items.append(item)
+        else:
+            for idx in node.children:
+                self.get_frequent_itemsets(node.children[idx], frequent_items, min_sup)
+
 
