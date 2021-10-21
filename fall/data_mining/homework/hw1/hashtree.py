@@ -72,6 +72,8 @@ class HashTree:
             if itemset in node.buckets:
                 node.buckets[itemset] += 1
                 #print(f'\tSupport for {itemset}: {node.buckets[itemset]}')
+        elif len(itemset) == index:
+            node.buckets[itemset] += 1
         else:
             hsh = self.hash(index , itemset)
             self.add_subset_support(node.children[hsh], itemset, index+1)

@@ -84,6 +84,7 @@ def gen_candidate_itemsets(LK_minus_one, htree):
 def gen_k_subsets(transaction: tuple, k:int) -> list:
     return itertools.combinations(transaction, k)
 
+# TODO: Different name for func and htree method!
 def get_frequent_itemsets(dataset, htree, k=2, min_sup=1):
     for transaction in dataset:
         # 1. Generate k-length subsets
@@ -94,25 +95,26 @@ def get_frequent_itemsets(dataset, htree, k=2, min_sup=1):
     # 3. Return those with min_support
     frequent_items = []
     # TODO: Change the min sup
-    htree.get_frequent_itemsets(htree.root, frequent_items, 2)
+    htree.get_frequent_itemsets(htree.root, frequent_items, min_sup)
     print(frequent_items)
+    return frequent_items
 
 
 def apriori(dataset):
     L1 = gen_1_itemsets(dataset)
     LK_minus_one = L1
-    htree = HashTree()
+    
     min_support = int(len(dataset) / 1000)
-
-    CK = gen_candidate_itemsets(LK_minus_one, htree)
-
-    # Scan database for support count of each candidate
-    # TODO: Have the increase support and gen freq items under one function?
-    get_frequent_itemsets(dataset, htree)
-
-    htree._print_tree(htree.root)
-    #print(CK)
-
+    k=2 
+    while LK_minus_one:
+        htree = HashTree()
+        CK = gen_candidate_itemsets(LK_minus_one, htree)
+        # Scan database for support count of each candidate
+        
+        LK_minus_one = get_frequent_itemsets(dataset, htree, k,min_sup=2) 
+        htree._print_tree(htree.root)
+        k += 1 
+    # TODO: Generate rules from frequent itemsets
         
 
 def main():
