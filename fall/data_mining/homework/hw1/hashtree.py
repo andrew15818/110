@@ -65,7 +65,7 @@ class HashTree:
     def hash(self, index, item, max_leaf_nodes=3):
         # Hash based on the digit of the number
         # To avoid index error
-        return int(item[index]) % max_leaf_nodes
+        return int(item[index % (len(item) + 1)]) % max_leaf_nodes
 
     def add_subset_support(self, node, itemset, index=0):
         if node.is_leaf:
@@ -83,7 +83,7 @@ class HashTree:
         if node.is_leaf:
             for item, sup in node.buckets.items():
                 if int(sup) >= min_sup:
-                    frequent_items.append(item)
+                    frequent_items.append((item, sup))
         else:
             for idx in node.children:
                 self.get_frequent_itemsets(node.children[idx], frequent_items, min_sup)

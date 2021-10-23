@@ -50,32 +50,40 @@ def gen_1_itemsets(dataset):
         for item in trans_items:
             # keep count
             candidates[item] = 0 if item not in candidates else candidates[item] + 1
-
                     
     # Get only the candidates with high enough min_support
     # Loop to maintain lexi ordering needed later, bit slower tho...
-    L1 = [[str(i)] for i in range(1, len(dataset)) if ((str(i) in candidates) and (candidates[str(i)] > min_support))]
-    
+    L1 = [(tuple(str(i)), candidates[str(i)])for i in range(1, len(dataset)) if ((str(i) in candidates) and (candidates[str(i)] > min_support))]
     return L1
 
 # Check if the first k-2 items are similar 
 def share_common_prefix(l1, l2):
+    # Why are there different dims?
+    if len(l1) != len(l2):
+        return False
+
     for i in range(len(l1)-2):
         if l1[i] != l2[i]:
             return False 
     return True 
+
+# Insert all candidates into tree and return tree
+def gen_hash_tree(candidates):
+    htree = HashTree()
+    for candidate in candidates:
+        htree.insert(tuple(candidate))
+    return htree
 # Generate all the candidate itemsets
-def gen_candidate_itemsets(LK_minus_one, htree):
+def gen_candidate_itemsets(LK_minus_one: list((tuple, int))):
 
     candidates = []
     for l1 in LK_minus_one:
         for l2 in LK_minus_one:
             # Possible candidate
-            if share_common_prefix(l1, l2) and (l1[-1] < l2[-1]):
-                c =  [i for i in l1]
-                c.append(l2[-1])
+            if share_common_prefix(l1[0], l2[0]) and (l1[0][-1] < l2[0][-1]):
+                c =  [i for i in l1[0]]
+                c.append(l2[0][-1])
                 #print(f"Inserting {c}")
-                htree.insert(tuple(c))
                 candidates.append(c)
 
     return candidates
@@ -84,8 +92,8 @@ def gen_candidate_itemsets(LK_minus_one, htree):
 def gen_k_subsets(transaction: tuple, k:int) -> list:
     return itertools.combinations(transaction, k)
 
-# TODO: Different name for func and htree method!
-def get_frequent_itemsets(dataset, htree, k=2, min_sup=1):
+# Return the frequent itemset and support count
+def get_frequent_itemsets(dataset, htree, k=2, min_sup=1) -> list((tuple, int)):
     for transaction in dataset:
         # 1. Generate k-length subsets
         subsets = gen_k_subsets(tuple(transaction), k) 
@@ -99,31 +107,64 @@ def get_frequent_itemsets(dataset, htree, k=2, min_sup=1):
     print(frequent_items)
     return frequent_items
 
-
+def gen_association_rules(frequent_itemsets, min_conf=0.7)->list(tuple()):
+    # Turn the fk into dictionary for quick access to (fk - h)
+    support = {}
+    for item in frequent_itemsets:
+        support[item[0]] = item[1]
+    rules = []
+    print(f'Support: {support}')
+    for fk in frequent_itemsets:
+        fk0 = fk[0]
+        m = 1
+        k = len(fk0)
+        
+        # 1. Get the 1-itemset of frequent_itemsets
+        Hm = itertools.combinations(fk0, m)
+        while m <= k:
+            #print(f'Finding RHS of {m}')
+            if k > (m ):
+                Hm1 = itertools.combinations(Hm, m)
+                for h in Hm1:
+                    fk_comp = [i for i in fk0 if tuple(i) not in h]
+                    # Concatenate h into a single tuple
+                    h = sum((h),())
+                    conf = support[fk0] / support[h]
+                    print(f'Rule: {fk_comp} => {tuple(h)}: {conf}')
+                    if conf >= min_conf:
+                        rules.append((fk_comp, h))
+            m += 1
+    return rules
 def apriori(dataset):
     L1 = gen_1_itemsets(dataset)
     LK_minus_one = L1
-    
     min_support = int(len(dataset) / 1000)
     k=2 
+    frequent = []
     while LK_minus_one:
-        htree = HashTree()
-        CK = gen_candidate_itemsets(LK_minus_one, htree)
+        frequent.extend(LK_minus_one)
+        CK = gen_candidate_itemsets(LK_minus_one)
+        htree = gen_hash_tree(CK)
         # Scan database for support count of each candidate
         
         LK_minus_one = get_frequent_itemsets(dataset, htree, k,min_sup=2) 
-        htree._print_tree(htree.root)
+        #htree._print_tree(htree.root)
         k += 1 
-    # TODO: Generate rules from frequent itemsets
-        
 
+    return frequent 
+def _print_rules(rules: list(tuple())):
+    for rule in rules:
+        print(f'{rule[0]} => {rule[1]}')
 def main():
     global args
     args = parseArgs()
     print(f'Reading from {args.file}')
 
     entries = get_dataset(args.file)
-    apriori(entries)
+    i = 0
+    frequent = apriori(entries)
+    assoc_rules = gen_association_rules(frequent, 0.8)
+    _print_rules(assoc_rules)
 
 if __name__=="__main__":
     main()
