@@ -17,6 +17,16 @@ def parseArgs():
         '--dataset',
         default='ibm'
     )
+    parser.add_argument(
+        '--support', '-s',
+        type=float, default=2,
+        #description='Support needed to generate frequent itemsets.'
+    )
+    parser.add_argument(
+        '--confidence', '-c',
+        type=float, default=0.8,
+        #description='Confidence needed for generating association rules.'
+    )
     args = parser.parse_args()
     return args 
 
@@ -31,15 +41,15 @@ def get_dataset(filename):
 
 # TODO: Add support for differently-formated files
 def get_transaction_entries(transaction):
-    if args.file == 'out.data':
-        return transaction.split()[3:]
-    elif args.file == 'test.data':
+    if args.file == 'test.data':
         return transaction.split()[1:]
+    else:
+        return transaction.split()[3:]
 
 # Get the 1-frequent itemsets
 def gen_1_itemsets(dataset):
 
-    min_support = int(len(dataset) / 1000)
+    min_support = args.support
     # Can we use a list instead to maintain lexi ordering?
     candidates = {}
     cnd = [0] * len(dataset)
@@ -50,7 +60,6 @@ def gen_1_itemsets(dataset):
         for item in trans_items:
             # keep count
             candidates[item] = 0 if item not in candidates else candidates[item] + 1
-                    
     # Get only the candidates with high enough min_support
     # Loop to maintain lexi ordering needed later, bit slower tho...
     L1 = [(tuple(str(i)), candidates[str(i)])for i in range(1, len(dataset)) if ((str(i) in candidates) and (candidates[str(i)] > min_support))]
@@ -104,7 +113,6 @@ def get_frequent_itemsets(dataset, htree, k=2, min_sup=1) -> list((tuple, int)):
     frequent_items = []
     # TODO: Change the min sup
     htree.get_frequent_itemsets(htree.root, frequent_items, min_sup)
-    print(frequent_items)
     return frequent_items
 
 def gen_association_rules(frequent_itemsets, min_conf=0.7)->list(tuple()):
@@ -113,7 +121,6 @@ def gen_association_rules(frequent_itemsets, min_conf=0.7)->list(tuple()):
     for item in frequent_itemsets:
         support[item[0]] = item[1]
     rules = []
-    print(f'Support: {support}')
     for fk in frequent_itemsets:
         fk0 = fk[0]
         m = 1
@@ -129,21 +136,26 @@ def gen_association_rules(frequent_itemsets, min_conf=0.7)->list(tuple()):
                     fk_comp = [i for i in fk0 if tuple(i) not in h]
                     # Concatenate h into a single tuple
                     h = sum((h),())
-                    conf = support[fk0] / support[h]
+                    try:
+                        conf = support[fk0] / support[h]
+                    except KeyError:
+                        continue
+
                     print(f'Rule: {fk_comp} => {tuple(h)}: {conf}')
                     if conf >= min_conf:
-                        rules.append((fk_comp, h))
+                        rules.append((fk_comp, h, conf))
             m += 1
     return rules
 def apriori(dataset):
     L1 = gen_1_itemsets(dataset)
     LK_minus_one = L1
-    min_support = int(len(dataset) / 1000)
+    min_support = args.support
     k=2 
     frequent = []
     while LK_minus_one:
         frequent.extend(LK_minus_one)
         CK = gen_candidate_itemsets(LK_minus_one)
+       
         htree = gen_hash_tree(CK)
         # Scan database for support count of each candidate
         
@@ -154,7 +166,7 @@ def apriori(dataset):
     return frequent 
 def _print_rules(rules: list(tuple())):
     for rule in rules:
-        print(f'{rule[0]} => {rule[1]}')
+        print(f'{rule[0]} => {rule[1]} conf: {rule[2]}')
 def main():
     global args
     args = parseArgs()
@@ -163,7 +175,7 @@ def main():
     entries = get_dataset(args.file)
     i = 0
     frequent = apriori(entries)
-    assoc_rules = gen_association_rules(frequent, 0.8)
+    assoc_rules = gen_association_rules(frequent, args.confidence)
     _print_rules(assoc_rules)
 
 if __name__=="__main__":

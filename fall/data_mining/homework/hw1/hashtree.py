@@ -65,7 +65,8 @@ class HashTree:
     def hash(self, index, item, max_leaf_nodes=3):
         # Hash based on the digit of the number
         # To avoid index error
-        return int(item[index % (len(item) + 1)]) % max_leaf_nodes
+        answer = int(item[index % (len(item))]) % max_leaf_nodes
+        return answer 
 
     def add_subset_support(self, node, itemset, index=0):
         if node.is_leaf:
