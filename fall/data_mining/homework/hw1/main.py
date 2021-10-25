@@ -2,7 +2,9 @@ import argparse
 import itertools
 import copy
 
+from util import get_transaction_entries
 from hashtree import Node, HashTree
+from fp_tree import FP
 
 def parseArgs():
     parser = argparse.ArgumentParser(
@@ -14,8 +16,8 @@ def parseArgs():
         default='out.data'
     )
     parser.add_argument(
-        '--dataset',
-        default='ibm'
+        '--dataIndex',
+        type=int, default=1
     )
     parser.add_argument(
         '--support', '-s',
@@ -27,24 +29,18 @@ def parseArgs():
         type=float, default=0.8,
         #description='Confidence needed for generating association rules.'
     )
+    parser.add_argument(
+        '--algorithm', '-a',
+        default='apriori'
+    )
     args = parser.parse_args()
     return args 
 
 def get_dataset(filename):
     parsed = []
-    with open(filename, 'r') as file:
-        data = file.readlines()
-       
-        for transaction in data:
-            parsed.append(get_transaction_entries(transaction))
+    for trans in open(filename, 'r'):
+        parsed.append(get_transaction_entries(trans))
     return parsed
-
-# TODO: Add support for differently-formated files
-def get_transaction_entries(transaction):
-    if args.file == 'test.data':
-        return transaction.split()[1:]
-    else:
-        return transaction.split()[3:]
 
 # Get the 1-frequent itemsets
 def gen_1_itemsets(dataset):
@@ -136,12 +132,14 @@ def gen_association_rules(frequent_itemsets, min_conf=0.7)->list(tuple()):
                     fk_comp = [i for i in fk0 if tuple(i) not in h]
                     # Concatenate h into a single tuple
                     h = sum((h),())
+                    # If keyerror, one subset was not frequent
                     try:
-                        conf = support[fk0] / support[h]
+                        conf = support[fk0] / support[tuple(fk_comp)]
                     except KeyError:
+                        print(f'Either {fk0} or {fk_comp} KeyError')
                         continue
 
-                    print(f'Rule: {fk_comp} => {tuple(h)}: {conf}')
+                    #print(f'Rule: {fk_comp} => {tuple(h)}: {conf}')
                     if conf >= min_conf:
                         rules.append((fk_comp, h, conf))
             m += 1
@@ -160,6 +158,7 @@ def apriori(dataset):
         # Scan database for support count of each candidate
         
         LK_minus_one = get_frequent_itemsets(dataset, htree, k,min_sup=2) 
+        print(LK_minus_one)
         #htree._print_tree(htree.root)
         k += 1 
 
@@ -167,16 +166,25 @@ def apriori(dataset):
 def _print_rules(rules: list(tuple())):
     for rule in rules:
         print(f'{rule[0]} => {rule[1]} conf: {rule[2]}')
+def _print_args():
+    print(f'[Reading from {args.file}  ]')
+    print(f'[Running {args.algorithm}  ]')
+    print(f'[Min Support {args.support}]')
+    print(f'[Rule Confidence {args.confidence}]')
+
 def main():
     global args
     args = parseArgs()
-    print(f'Reading from {args.file}')
+    _print_args() 
+    if args.algorithm == 'apriori':
+        entries = get_dataset(args.file)
+        frequent = apriori(entries)
+        assoc_rules = gen_association_rules(frequent, args.confidence)
+        _print_rules(assoc_rules)
 
-    entries = get_dataset(args.file)
-    i = 0
-    frequent = apriori(entries)
-    assoc_rules = gen_association_rules(frequent, args.confidence)
-    _print_rules(assoc_rules)
+    else:
+        fp_tree = FP(args.file, args.dataIndex) 
+        fp_tree.fp()
 
 if __name__=="__main__":
     main()
