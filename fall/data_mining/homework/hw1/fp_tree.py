@@ -1,14 +1,13 @@
 from util import get_transaction_entries 
 class Node:
     def __init__(self):
-        #self.itemset = itemset
+        self.item = None
         self.children = {}
         self.count = 1
         self.parent = None
         self.link = None            # Link to next node in the header table
 
 class FP:
-    # TODO: How to store the node link?
     def __init__(self, source, index):
         self.headers = {}           # Header table for each node
         self.source = source
@@ -34,14 +33,10 @@ class FP:
     # Expand the header table with reference to node
     def fp_insert_nlink(self, item, node):
         if item not in self.headers:
-            self.headers[item] = node
+            self.headers[item] = [node] 
         # Insert node at the end of list
         else:
-            sent = self.headers[item]
-            while sent.link != None:
-                sent = sent.link
-            sent.link = node
-
+            self.headers[item].append(node)
 
     def fp_recur_insert(self, node, itemset, index):
         # Recursive end
@@ -54,29 +49,45 @@ class FP:
 
         else:
             insert = Node()
+            insert.item = item
             insert.parent = node
             node.children[item] = insert
-            # TODO: Expand header table
             self.fp_insert_nlink(item, insert)
+            print(f'Child {insert.item} parent {insert.parent.item}')
 
         self.fp_recur_insert(node.children[item], itemset, index+1)
 
 
     def fp_insert(self, itemset):
         self.fp_recur_insert(self.root, itemset, 0)
-
+    
+    def get_frequent_items(self):
+        for item, nlist in self.headers.items():
+            con_pattern = {} # Conditional pattern for each item
+            print(f'{item}: ', end="")
+            # 1. Get the prefix count for each dataset
+            for node in nlist:
+                sent = node.parent
+                while sent.parent != None:
+                    if sent.item in con_pattern:
+                        con_pattern[sent.item] += 1
+                    else:
+                        con_pattern[sent.item] = 1
+                    sent = sent.parent
+            print(con_pattern)
+            # 2. Remove those with little support
+            
     # debug print functions
     def _print_tree(self, node):
-        print(f'Node with children: {node.children}')
+        print(f'Node with item {node.item} count {node.count}, children: {node.children}')
         for key, val in node.children.items():
             self._print_tree(val)
+
     def _print_table(self):
-        for item, node in self.headers.items():
+        for item, nlist in self.headers.items():
             print(f'{item}: ', end="")
-            sent = node
-            while sent != None:
-                print(f'{sent.count} ', end="")
-                sent = sent.link
+            for node in nlist:
+                print(f'(item={node.item}, parent={node.parent.item}) ', end="")
             print('\n')
 
     def fp(self):
@@ -87,5 +98,6 @@ class FP:
             self.fp_insert(trans)
         self._print_tree(self.root)
         self._print_table()
+        self.get_frequent_items()
             
 
