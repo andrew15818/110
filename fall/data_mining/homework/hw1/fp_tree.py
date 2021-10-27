@@ -1,4 +1,7 @@
+import itertools
+
 from util import get_transaction_entries 
+
 class Node:
     def __init__(self):
         self.item = None
@@ -60,12 +63,24 @@ class FP:
 
     def fp_insert(self, itemset):
         self.fp_recur_insert(self.root, itemset, 0)
-    
-    def get_frequent_items(self):
+
+    # Get length 2-len(prefix) itemsets, suffix added to end
+    # TODO: Change the format of the data for more easy printing
+    def subsets(self, prefix, suffix): 
+        subs = []
+        for i in range(1, len(prefix)+1):
+            subi = itertools.combinations(prefix, i) 
+            print(f'{[[j, suffix] for j in subi]}')
+            su
+        return subs
+        
+
+    def get_frequent_items(self, support):
+        frequent_items = []
         for item, nlist in self.headers.items():
             con_pattern = {} # Conditional pattern for each item
             print(f'{item}: ', end="")
-            # 1. Get the prefix count for each dataset
+            # 1. Get the prefix path count for each node (conditional pattern base) 
             for node in nlist:
                 sent = node.parent
                 while sent.parent != None:
@@ -76,6 +91,10 @@ class FP:
                     sent = sent.parent
             print(con_pattern)
             # 2. Remove those with little support
+            con_tree = [tuple((item, count)) for item, count in con_pattern.items() if count >= support]
+            
+            self.subsets(con_tree, item)
+
             
     # debug print functions
     def _print_tree(self, node):
@@ -90,7 +109,7 @@ class FP:
                 print(f'(item={node.item}, parent={node.parent.item}) ', end="")
             print('\n')
 
-    def fp(self):
+    def fp(self, support):
         L = self._get_one_itemsets()
 
         for trans in self.fp_next_trans():
@@ -98,6 +117,6 @@ class FP:
             self.fp_insert(trans)
         self._print_tree(self.root)
         self._print_table()
-        self.get_frequent_items()
+        self.get_frequent_items(support)
             
 
