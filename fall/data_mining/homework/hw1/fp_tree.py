@@ -11,7 +11,7 @@ class Node:
         self.link = None            # Link to next node in the header table
 
 class FP:
-    def __init__(self, source, index):
+    def __init__(self, source, index, inputLists=None):
         self.headers = {}           # Header table for each node
         self.source = source
         self.index = index          # Index on which to split the transaction string
@@ -70,38 +70,79 @@ class FP:
         subs = []
         for i in range(1, len(prefix)+1):
             subi = itertools.combinations(prefix, i) 
-            print(f'{[[j, suffix] for j in subi]}')
-            su
+            #print(f'{[[j, suffix] for j in subi]}')
+            subs.append([[j, suffix] for j in subi])
         return subs
         
+    def has_single_path(self, node):
+        print(node.item)
+        if len(node.children) > 1:
+            return False
+        else:
+            return True and self.has_single_path(node.children[0])
 
     def get_frequent_items(self, support):
-        frequent_items = []
-        for item, nlist in self.headers.items():
-            con_pattern = {} # Conditional pattern for each item
-            print(f'{item}: ', end="")
-            # 1. Get the prefix path count for each node (conditional pattern base) 
-            for node in nlist:
+        # 1. If there is single path, create the subsets along the path
+        #print(f'Path for {self.root.item}:')
+        if self.has_single_path(self.root):
+            # Generate subsets along this path
+            pass
+        else:
+            # Mine the different subtrees and add them together 
+            self.mine_subtrees(support)
+        # 2. For each item in the tree header, generate cond pattern, tree
+        # 3. If the tree is not None, call recursively
+    def mine_subtrees(self, support): 
+        # Go through all the frequent items and their branches
+        # Add support count for each item in the branches
+        
+        for item, link in self.headers.items():
+            path = []
+            for node in link:
+                freq = node.count
+                print(freq)
+                #print(f'path for {item}: ')
                 sent = node.parent
+                # Conditional branches for each node
+                branch = []
                 while sent.parent != None:
-                    if sent.item in con_pattern:
-                        con_pattern[sent.item] += 1
-                    else:
-                        con_pattern[sent.item] = 1
+                    branch.append(sent.item)
                     sent = sent.parent
-            print(con_pattern)
-            # 2. Remove those with little support
-            con_tree = [tuple((item, count)) for item, count in con_pattern.items() if count >= support]
-            
-            self.subsets(con_tree, item)
+                # To preserve counts in conditional tree?
+                for fpap in range(freq):
+                    path.append(branch)
 
-            
+            # TODO: Generate the conditional fp-tree
+            print(f'Tree for {item}')
+            print(path)
+            cond_tree = FP('', '')
+            for p in path:
+                cond_tree.fp_insert(list(reversed(p)))
+            cond_tree._print_tree(cond_tree.root)
+            print('\n')
+
+
+
     # debug print functions
     def _print_tree(self, node):
         print(f'Node with item {node.item} count {node.count}, children: {node.children}')
         for key, val in node.children.items():
             self._print_tree(val)
 
+    # Deal with awkward formatiing
+    def _print_frequent_items(self, frequent_items):
+        print(frequent_items)
+        for item in frequent_items:
+            if item == None:
+                continue
+            for ri in item:
+                for rule in ri:
+                    for j in range(len(rule)-1):
+                        for p in rule[j]:
+                            print(f'{p[0]}, ', end="")
+                print(f' => {rule[-1]}')
+                
+            #print(item)
     def _print_table(self):
         for item, nlist in self.headers.items():
             print(f'{item}: ', end="")
@@ -117,6 +158,5 @@ class FP:
             self.fp_insert(trans)
         self._print_tree(self.root)
         self._print_table()
-        self.get_frequent_items(support)
-            
+         
 
