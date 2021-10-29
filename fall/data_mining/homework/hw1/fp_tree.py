@@ -17,6 +17,7 @@ class FP:
         self.index = index          # Index on which to split the transaction string
         self.count = {}             # item, count pair used for sorting
         self.root = Node()
+        self.item = None
 
     def fp_next_trans(self):
         for row in open(self.source, 'r'):
@@ -56,7 +57,6 @@ class FP:
             insert.parent = node
             node.children[item] = insert
             self.fp_insert_nlink(item, insert)
-            print(f'Child {insert.item} parent {insert.parent.item}')
 
         self.fp_recur_insert(node.children[item], itemset, index+1)
 
@@ -64,44 +64,62 @@ class FP:
     def fp_insert(self, itemset):
         self.fp_recur_insert(self.root, itemset, 0)
 
-    # Get length 2-len(prefix) itemsets, suffix added to end
-    # TODO: Change the format of the data for more easy printing
-    def subsets(self, prefix, suffix): 
+    # Loop through all the branches in path
+    def subsets(self):
+        items = self.headers.keys()
         subs = []
-        for i in range(1, len(prefix)+1):
-            subi = itertools.combinations(prefix, i) 
-            #print(f'{[[j, suffix] for j in subi]}')
-            subs.append([[j, suffix] for j in subi])
+        for i in range(len(items) + 1):
+             subs.append(tuple(itertools.combinations(items, i)))
         return subs
-        
+
     def has_single_path(self, node):
-        print(node.item)
+        if not node.children:
+            return True
         if len(node.children) > 1:
             return False
         else:
-            return True and self.has_single_path(node.children[0])
+            child = list(node.children)[0]
+            return True and self.has_single_path(node.children[child])
+
+    def comb_itemsets(self, prefixes):
+        itemsets = []
+        suffix = self.item
+        if not suffix:
+            return None
+        for prefix in prefixes:
+            for iset in prefix:
+                itemsets.append(tuple((iset) + tuple(suffix)))
+        return itemsets
 
     def get_frequent_items(self, support):
         # 1. If there is single path, create the subsets along the path
-        #print(f'Path for {self.root.item}:')
+        #print(f'Analyzing frequent items of {item}')
         if self.has_single_path(self.root):
             # Generate subsets along this path
-            pass
+            a = self.comb_itemsets(self.subsets())
+            return a
         else:
             # Mine the different subtrees and add them together 
-            self.mine_subtrees(support)
-        # 2. For each item in the tree header, generate cond pattern, tree
-        # 3. If the tree is not None, call recursively
+            s = (self.mine_subtrees(support))
+            return s
+    def zip(self, patterns):
+        suffix = self.item
+        if not suffix:
+            return
+        new_patterns = {}
+        for pattern in patterns:
+            new_patterns[tuple(sorted(pattern + tuple(suffix)))]  = patterns[pattern]
+
+        return new_patterns
     def mine_subtrees(self, support): 
         # Go through all the frequent items and their branches
         # Add support count for each item in the branches
-        
+        patterns = {} # Patterns from the different branches
         for item, link in self.headers.items():
             path = []
             for node in link:
                 freq = node.count
-                print(freq)
-                #print(f'path for {item}: ')
+                #print(freq)
                 sent = node.parent
                 # Conditional branches for each node
                 branch = []
@@ -109,18 +127,35 @@ class FP:
                     branch.append(sent.item)
                     sent = sent.parent
                 # To preserve counts in conditional tree?
-                for fpap in range(freq):
+                for f in range(freq):
                     path.append(branch)
-
-            # TODO: Generate the conditional fp-tree
-            print(f'Tree for {item}')
-            print(path)
             cond_tree = FP('', '')
             for p in path:
                 cond_tree.fp_insert(list(reversed(p)))
-            cond_tree._print_tree(cond_tree.root)
-            print('\n')
+            cond_tree.prune(support)
+            cond_tree.item = item
+            sub_patterns = cond_tree.get_frequent_items(support)
+            #print(f'sub_patterns: {sub_patterns}')
+            for pattern in sub_patterns:
+                if pattern in patterns:
+                    patterns[pattern] += sub_patterns[pattern]
+                else:
+                    patterns[pattern] = 0
+            #print(f'Patterns: {patterns}')
+        return patterns 
+            
 
+
+    # Remove the itemsets with too low support
+    def prune(self, support):
+        for value, nlist in self.headers.items():
+            currsup = 0 
+            for node in nlist:
+                currsup += node.count
+            if currsup < support: 
+                d = self.headers.copy()
+                del d[value]
+                self.headers = d
 
 
     # debug print functions
@@ -131,18 +166,7 @@ class FP:
 
     # Deal with awkward formatiing
     def _print_frequent_items(self, frequent_items):
-        print(frequent_items)
-        for item in frequent_items:
-            if item == None:
-                continue
-            for ri in item:
-                for rule in ri:
-                    for j in range(len(rule)-1):
-                        for p in rule[j]:
-                            print(f'{p[0]}, ', end="")
-                print(f' => {rule[-1]}')
-                
-            #print(item)
+        pass
     def _print_table(self):
         for item, nlist in self.headers.items():
             print(f'{item}: ', end="")
@@ -156,7 +180,9 @@ class FP:
         for trans in self.fp_next_trans():
             trans.sort(key= lambda i:self.count[i], reverse=True)
             self.fp_insert(trans)
-        self._print_tree(self.root)
-        self._print_table()
+        fi = self.get_frequent_items(support)
+        #self._print_tree(self.root)
+        #self._print_table()
+        print(f'FINALLY: {fi}')
          
 

@@ -184,7 +184,8 @@ def main():
 
     else:
         fp_tree = FP(args.file, args.dataIndex) 
-        fp_tree.fp()
+        fp_tree.fp(args.support)
+        #fp_tree._print_frequent_items(fi)
 
 if __name__=="__main__":
     main()
