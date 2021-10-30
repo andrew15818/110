@@ -36,7 +36,6 @@ class HashTree:
             if itemset in node.buckets.keys():
                 node.buckets[itemset] += support 
                 node.cum_support += support
-                #print(node.buckets[itemset])
             else:
                 #print(f"Adding {itemset} with suppor,t {support}")
                 node.buckets[itemset] = support

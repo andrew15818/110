@@ -1,6 +1,9 @@
 import argparse
 import itertools
 import copy
+# For profiling
+import resource
+import time 
 
 from util import get_transaction_entries
 from hashtree import Node, HashTree
@@ -176,6 +179,7 @@ def main():
     global args
     args = parseArgs()
     _print_args() 
+    start = time.time()
     if args.algorithm == 'apriori':
         entries = get_dataset(args.file)
         frequent = apriori(entries)
@@ -184,8 +188,12 @@ def main():
 
     else:
         fp_tree = FP(args.file, args.dataIndex) 
-        fp_tree.fp(args.support)
+        patt = fp_tree.fp(args.support)
+        rules = fp_tree.gen_association_rules(patt, args.confidence)
+        fp_tree._print_frequent_rules(rules)
         #fp_tree._print_frequent_items(fi)
+    end = time.time()
+    print(f'Memory: {resource.getrusage(resource.RUSAGE_SELF).ru_maxrss} Mb Time: {end-start} s')
 
 if __name__=="__main__":
     main()
