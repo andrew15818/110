@@ -47,7 +47,6 @@ class FP:
         if index >= len(itemset):
             return
         item = itemset[index]
-
         if item in node.children:
             node.children[item].count += 1
 
@@ -82,13 +81,18 @@ class FP:
             return True and self.has_single_path(node.children[child])
 
     def comb_itemsets(self, prefixes):
-        itemsets = []
+       
+        itemsets = {}
         suffix = self.item
-        if not suffix:
+        if not suffix :
             return None
         for prefix in prefixes:
             for iset in prefix:
-                itemsets.append(tuple((iset) + tuple(suffix)))
+                item = iset + tuple(suffix)
+                if item not in itemsets:
+                    itemsets[item] = 1
+                else:
+                    itemsets[item] += 1
         return itemsets
 
     def get_frequent_items(self, support):
@@ -100,17 +104,18 @@ class FP:
             return a
         else:
             # Mine the different subtrees and add them together 
-            s = (self.mine_subtrees(support))
+            s = self.zip(self.mine_subtrees(support))
             return s
+
     def zip(self, patterns):
         suffix = self.item
         if not suffix:
-            return
-        new_patterns = {}
-        for pattern in patterns:
-            new_patterns[tuple(sorted(pattern + tuple(suffix)))]  = patterns[pattern]
-
-        return new_patterns
+            return patterns
+        new = {}
+        for itemset in patterns.keys():
+            new_itemset = tuple(itemset + tuple(suffix))
+            new[new_itemset] = patterns[itemset]
+        return new
     def mine_subtrees(self, support): 
         # Go through all the frequent items and their branches
         # Add support count for each item in the branches
@@ -135,13 +140,12 @@ class FP:
             cond_tree.prune(support)
             cond_tree.item = item
             sub_patterns = cond_tree.get_frequent_items(support)
-            #print(f'sub_patterns: {sub_patterns}')
             for pattern in sub_patterns:
                 if pattern in patterns:
                     patterns[pattern] += sub_patterns[pattern]
                 else:
-                    patterns[pattern] = 0
-            #print(f'Patterns: {patterns}')
+                    patterns[pattern] = 1
+           
         return patterns 
             
 
@@ -165,8 +169,10 @@ class FP:
             self._print_tree(val)
 
     # Deal with awkward formatiing
-    def _print_frequent_items(self, frequent_items):
-        pass
+    def _print_frequent_rules(self, rules: dict):
+        for ant, result in rules.items():
+            print(f'{ant} => {result[0]}; conf: {result[1]}')
+
     def _print_table(self):
         for item, nlist in self.headers.items():
             print(f'{item}: ', end="")
@@ -174,15 +180,34 @@ class FP:
                 print(f'(item={node.item}, parent={node.parent.item}) ', end="")
             print('\n')
 
+    def gen_association_rules(self, patterns, confidence):
+        #print(f'frequent: {patterns.keys()}')
+        rules = {}
+        for pattern in patterns:
+            support_upper = patterns[pattern]
+            
+            for i in range(1, len(pattern)):
+                for ant in itertools.combinations(pattern, i):
+                    ant = tuple(sorted(ant))
+                    cons = tuple(sorted(set(pattern) - set(ant)))
+                    if ant in patterns:
+                        support_lower = patterns[ant]
+                        confidence = support_upper / support_lower
+
+                        if confidence >= confidence:
+                            rules[ant] = ((cons, confidence))
+
+        return rules 
+
     def fp(self, support):
         L = self._get_one_itemsets()
 
         for trans in self.fp_next_trans():
             trans.sort(key= lambda i:self.count[i], reverse=True)
             self.fp_insert(trans)
-        fi = self.get_frequent_items(support)
         #self._print_tree(self.root)
-        #self._print_table()
-        print(f'FINALLY: {fi}')
+        fi = self.get_frequent_items(support)
+
+        return fi
          
 
