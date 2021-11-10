@@ -20,7 +20,7 @@ def parseArgs():
     )
     parser.add_argument(
         '--dataIndex',
-        type=int, default=1
+        type=int, default=0
     )
     parser.add_argument(
         '--support', '-s',
@@ -131,20 +131,24 @@ def gen_association_rules(frequent_itemsets, min_conf=0.7)->list(tuple()):
             #print(f'Finding RHS of {m}')
             if k > (m ):
                 Hm1 = itertools.combinations(Hm, m)
+                #print(f'Support {fk0}: {fk[1]}')
                 for h in Hm1:
-                    fk_comp = [i for i in fk0 if tuple(i) not in h]
+                    #fk_comp = [i for i in fk0 if tuple(i) not in h]
+                    fk_comp = tuple(set(fk0) - set(h))
                     # Concatenate h into a single tuple
                     h = sum((h),())
-                    # If keyerror, one subset was not frequent
+                    #  keyerror, one subset was not frequent
+                    
                     try:
-                        conf = support[fk0] / support[tuple(fk_comp)]
+                        conf = fk[1]  / support[tuple(fk_comp)]
+                        #print(f'\tSupport A: {support[tuple(fk_comp)]}, conf: {conf}')
                     except KeyError:
-                        print(f'Either {fk0} or {fk_comp} KeyError')
+                        #print(f'Either {fk0} or {fk_comp} KeyError')
                         continue
 
                     #print(f'Rule: {fk_comp} => {tuple(h)}: {conf}')
                     if conf >= min_conf:
-                        rules.append((fk_comp, h, conf))
+                        rules.append((fk_comp, h, conf, fk[1]))
             m += 1
     return rules
 def apriori(dataset):
@@ -161,14 +165,13 @@ def apriori(dataset):
         # Scan database for support count of each candidate
         
         LK_minus_one = get_frequent_itemsets(dataset, htree, k,min_sup=2) 
-        print(LK_minus_one)
+        #print(LK_minus_one)
         #htree._print_tree(htree.root)
         k += 1 
-
     return frequent 
 def _print_rules(rules: list(tuple())):
     for rule in rules:
-        print(f'{rule[0]} => {rule[1]} conf: {rule[2]}')
+        print(f'{rule[0]} => {rule[1]} support: {rule[3]} conf: {rule[2]}')
 def _print_args():
     print(f'[Reading from {args.file}  ]')
     print(f'[Running {args.algorithm}  ]')
@@ -183,17 +186,23 @@ def main():
     if args.algorithm == 'apriori':
         entries = get_dataset(args.file)
         frequent = apriori(entries)
+        
+        end = time.time()
         assoc_rules = gen_association_rules(frequent, args.confidence)
+        
+        print(f'[Pattern Finding] Memory: {resource.getrusage(resource.RUSAGE_SELF).ru_maxrss} Mb Time: {end-start}')      
         _print_rules(assoc_rules)
 
     else:
         fp_tree = FP(args.file, args.dataIndex) 
         patt = fp_tree.fp(args.support)
+        end = time.time()
         rules = fp_tree.gen_association_rules(patt, args.confidence)
-        fp_tree._print_frequent_rules(rules)
-        #fp_tree._print_frequent_items(fi)
-    end = time.time()
-    print(f'Memory: {resource.getrusage(resource.RUSAGE_SELF).ru_maxrss} Mb Time: {end-start} s')
+        print(rules)
+        print(f'[Pattern Finding] Memory: {resource.getrusage(resource.RUSAGE_SELF).ru_maxrss} Mb Time: {end-start} s')
+        
+        
+       
 
 if __name__=="__main__":
     main()

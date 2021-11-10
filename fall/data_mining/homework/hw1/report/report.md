@@ -8,7 +8,7 @@ Author: [Andr\'es Ponce, P76107116]
 Finding patterns in large, unstructured data such as a transaction database
 might at first seem too computationally expensive to perform.
 Our goal is to find items that occur often together and make inferences about them.
-At the end, those subsets which appear more than a certain threshold
+In the end, those subsets which appear more than a certain threshold
 (called its **support**) are considered frequent itemsets.
 From frequent itemsets we can generate **association rules** by calculating
 how often the subsets of frequent itemsets occur together.
@@ -36,9 +36,9 @@ The a-priori algorithm uses the a-priori property to build up the frequent items
 First, the $1$-itemsets are found by scanning the dataset $D$ and getting the support count for each
 item; only the items with high enough support are kept.
 
-Next, until the frequent itemsets $L$ is empty, we keep finding the new candidate set $C_{k+1}$.
+Next, until the frequent itemsets $L$ is empty, we keep generating the new candidate set $C_{k+1}$.
 From the set of frequent itemsets $L_{k}$, we combine each element $l_{1}$ with an element from $l_{2}$
-if $l_{2}$'s last element is greater than the one $l_{1}$. 
+if $l_{2}$'s last element is greater than $l_{1}$'s last element. 
 Having this requirement preserves the lexicographical order of the itemsets.
 
 We maintain a structure called a **hash tree**, whose leaf nodes contain the itemsets and their counts and 
@@ -62,7 +62,6 @@ The FP-Growth algorithm addresses some of the potential drawbacks of the a-prior
 The first algorithm requires several scans of the database to determine the support count
 of datasets.
 Furthermore, for large databases the space required to store the hash tree might be prohibitive as well.
-For large, datasets, these several scans might be prohibitive.
 
 The FP-Growth algorithm uses a compressed form of the database to determine support counts for the itemsets,
 and avoids the candidate generation approach which might produce a large amount of itemsets without enough support.
@@ -90,21 +89,103 @@ The overall set of frequent itemsets is thus the concatenation of the frequent i
 To test the differnce between the two algorithms, we test several transitional datasets and compare the execution time 
 and results.
 There are a couple of datasets we are using: a 9-item file with the textbook example, used to check for correct itemset generation;
-a 100-item `.data` file produced by the IBM dataset generator; and the provided `ibm-5000.txt` file.
-The results are the average of three runs.
+a 100-item `.data` file produced by the IBM dataset generator; and the provided `ibm-5000.txt` file. The last set of 25,000 items is found
+in the `ibm-2021.txt` file.
 
+The results are the average of three runs.
 The testing results for the a-priori with a support count of 2 and rule confidence of 0.8 algorithm are as follows
 
-| Trans. Number| Memory Usage(Mb) | Time(s) |
+| Trans. No. | Memory Usage(Mb) | Time(s) |
 |----|----------------|--------|
-| **9** | 12.95 | .000253 |
-|**100**| 152,190 | 164.098 |
-|**4798**|||
+| **9** | 12.993 | .000185 |
+|**100**| 12.902 | .0024 |
+|**4798**| 17.529| .2013 |
+|**25,000**|39.165| 3.4646|
 
-## Rules
+For the FP-Growth, the corresponding tests yield the following results
 
-## Answer:
-1. High Support/ high confidence
-2. High Support/ low confidence
-3. Low Support/ High confidence
-4. Low Support/ low confidence
+| Trans. No. | Memory Usage(Mb) | Time(s) |
+|----|----------------|--------|
+|**9**| 12.998 | .0003 |
+|**100**|13.418| .0056|
+|**4798**|18.388| .0046|
+|**25,000**|38.997| .4982|
+
+## Performance Analysis
+The datasets can also affect the performance of the two algorithms.
+For instance, the 100-item dataset used an average transaction length of 3 items, however the number of customers was much higher 
+than the number of transactions. 
+This lead to overall lower confidence in each individual rule and a fewer amount of rules in total, e.g. customer 1000 would have
+only a few appearances in a smaller dataset.
+In a realistic setting adjusting the support and confidence requirements in accordance with the dataset yield the best results;
+however, for this experiment those settings were left constant for all tests.
+Having a higher minimum support and/or confidence requirement would increase the computation speed since it would result in fewer frequent
+itemsets, however this could come at the cost of missing potentially useful relationships.
+Thus, apart from using a more efficient algorithm, other parameters could be adjusted for optimal results.
+
+
+The motivation for the FP-Growth algorithm involved reducing the number of database scans to also reduce the computational complexity.
+This advantage becomes clearer the larger the amount of transactions in the dataset.
+Even though the memory requirements remained close (possibly a result of the implementation), the time taken to generate frequent
+patterns and rules in the FP-Growth algorithm is much lower than a-priori for larger datasets.
+Again, avoiding costly database scans in favor of repeated tree scans can certainly help depending on the structure of the conditional pattern
+and conditional growth trees.
+
+In terms of memory, both implementations required a similar amount of memory during the experiments.
+While some of the reason might lie in the implementation details(e.g. built-in structures used for some steps), having a large hashtree or fp-tree
+would also contribute to the memory requirements.
+Doing a very quick calculation, for a file containing around $100,000$ unique items (such as `ibm-2021.txt`), $20\%$ of the items being considered frequent,
+each frequent item appearing on average $14$ times [^1], times 64-bits per number and the result is a tree of estimated size  
+
+\begin{equation}
+100000 \times 0.20 \times 14 \times 64 = 17.920\textrm{Mb}
+\end{equation}
+
+Although with a low support threshold, it is likely that a larger portion of the dataset is considered "frequent", which would lead to a much
+larger tree.
+This example is nevertheless useful in seeing how repeated items in our tree could lead to a bigger tree size.
+
+## Support and Confidence
+Finding association rules $A \Rightarrow B$ from the set of frequent itemsets $F_{K}$ requires finding the support of $AB$.
+The formula for calculating the confidence in a given rule is
+\begin{equation}
+confidence(A \Rightarrow B) = \frac{support(A \cup B)}{support(A)}
+\end{equation}
+
+In the algorithms, $A\cup B$ is usually a single frequent itemset $f_{k}$, from which we derive the length $k$ subsets that make up the right 
+and left hand sides of the rule.
+Since every subset of a frequent itemset is itself frequent, we know that both $A$ and $B$ are frequent itemsets.
+However, the relationship between their individual support counts can lead to interesting results.
+
+As the support of $A\cup B$ and $A$ both go higher, this will lead to a high support count, but the confidence will actually be lower, possibly
+being rejected.
+If $A\cup B$ has a higher support count and $A$ has a lower support count (i.e. their support counts do not differ that much), the support 
+for $A\cup B$ will be higher and the confidence as well.
+If $A\cup B$ has lower support count, and $A$'s support is higher relative to it, the confidence will be lower because of the larger denominator, 
+making this rule a candidate to be dropped.
+Finally, as the support count of $A\cup B$ and $A$ both tend towards lower values, the support count will be lower but the confidence could turn 
+out to be high.
+
+## Conclusion
+Determining which items occur together in a set of transactions can be quite a complex task, especially with thousands or even millions of individual
+transactions.
+Frequent patterns could help many kinds of businesses know which items should be bundled together in a store, for example, or help in creating
+enticing discounts.
+Sifting through large amounts of data to find these groups of items would quickly become prohibitive with a naive approach.
+
+In this assignment, both the a-priori and FP-Growth algorithms were tested in terms of computation time and memory requirements.
+The a-priori algorithm iteratively builds a candidate item list $C_{k}$ to determine the $k$-length itemsets $L_{k}$. 
+It uses a hash-tree structure to store the itemsets and their counts as leaf nodes for quickly determining subsets.
+This approach can generate many candidates that don't result in frequent itemsets.
+
+To address this issue, the fp-algorithm uses a compressed version of the database to determine frequent itemsets.
+By using an fp-tree, we can determine which items are common prefixes of item $i$ and use those to generate frequent itemsets.
+This approach results in a more efficient approach since the entire database is stored only once, the computation being mostly done
+recursively on the fp-tree.
+
+This assignment focused on applying them to a transactional setting; however, many other kinds of scenarios are possible where other 
+methods might be more appropriate.
+Nevertheless, the usefulness of these algorithms is evident in their wide use and influence in the field.
+With more general methods, even better and more efficient results could be achieved from a dataset.
+[^1]: Taken by sorting the count of each item.
+

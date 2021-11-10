@@ -1,4 +1,5 @@
 import itertools
+import time
 
 from util import get_transaction_entries 
 
@@ -22,7 +23,7 @@ class FP:
     def fp_next_trans(self):
         for row in open(self.source, 'r'):
             yield get_transaction_entries(row, self.index)
-
+    
     def _get_one_itemsets(self):
         #count = {}
         # Get support count of each item
@@ -88,7 +89,7 @@ class FP:
             return None
         for prefix in prefixes:
             for iset in prefix:
-                item = iset + tuple(suffix)
+                item = tuple(sorted(iset + tuple(suffix)))
                 if item not in itemsets:
                     itemsets[item] = 1
                 else:
@@ -113,9 +114,10 @@ class FP:
             return patterns
         new = {}
         for itemset in patterns.keys():
-            new_itemset = tuple(itemset + tuple(suffix))
+            new_itemset = tuple(sorted(itemset + tuple(suffix)))
             new[new_itemset] = patterns[itemset]
         return new
+
     def mine_subtrees(self, support): 
         # Go through all the frequent items and their branches
         # Add support count for each item in the branches
@@ -181,7 +183,7 @@ class FP:
             print('\n')
 
     def gen_association_rules(self, patterns, confidence):
-        #print(f'frequent: {patterns.keys()}')
+        print(patterns)
         rules = {}
         for pattern in patterns:
             support_upper = patterns[pattern]
@@ -190,13 +192,17 @@ class FP:
                 for ant in itertools.combinations(pattern, i):
                     ant = tuple(sorted(ant))
                     cons = tuple(sorted(set(pattern) - set(ant)))
+                    try:
+                        support_upper = patterns[cons]
+                    except KeyError:
+                        continue
                     if ant in patterns:
                         support_lower = patterns[ant]
-                        confidence = support_upper / support_lower
+                        confidence =  support_upper / support_lower
 
                         if confidence >= confidence:
                             rules[ant] = ((cons, confidence))
-
+                            print(f'{ant} => {cons} support: {patterns[pattern]} conf: {confidence}')
         return rules 
 
     def fp(self, support):
@@ -207,7 +213,6 @@ class FP:
             self.fp_insert(trans)
         #self._print_tree(self.root)
         fi = self.get_frequent_items(support)
-
         return fi
          
 
