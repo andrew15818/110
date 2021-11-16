@@ -1,5 +1,7 @@
-
+from sklearn import tree
+from sklearn.datasets import load_iris
 import argparse
+from matplotlib import pyplot as plt
 import pandas as pd
 
 from decisiontree import DecisionTree 
@@ -37,10 +39,22 @@ def run(algorithm, data):
         algo = DecisionTree()
     algo.run(data)
 
+def compare():
+    dt = tree.DecisionTreeClassifier()
+    iris = load_iris()
+    dt = dt.fit(iris.data, iris.target)
+    fig = plt.figure(figsize=(25,20))
+    _ = tree.plot_tree(dt, 
+            feature_names=iris.feature_names,
+            class_names=iris.target_names,
+            filled=True)
+    plt.savefig("Figure-1.png")
+    
 def main():
     args = get_args() 
     data = get_data(args.file)
     run(args.algorithm, data)
+    compare()
     
 
 if __name__=='__main__':
