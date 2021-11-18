@@ -17,7 +17,11 @@ class Node:
     def add_child(self, node):
         node.parent = self
         self.children.append(node)
-
+    # Decided to just do binary tree at the last minute :(
+    def get_left(self):
+        return self.children[0]
+    def get_right(self):
+        return self.children[1]
     
 class DecisionTree:
     def __init__(self, continuous=True, method='gini'):
@@ -66,7 +70,7 @@ class DecisionTree:
             
             split_purity = self.purity(data, featcol.name, split_point)
             if split_purity < best_purity:
-            
+                print(f'\t\tConsidering {split_purity}')
                 best_purity = split_purity
                 best_split_point = split_point
         return best_purity, best_split_point
@@ -77,11 +81,10 @@ class DecisionTree:
         best_attribute = ""
         gini_data = self.gini(data)
 
-
         for attribute in self.features:
-            #print(f'Checking {attribute}')
+            print(f'Checking {attribute}')
             purity, point = self._attribute_best_split_cont(data, data[attribute])
-            #print(f'\t{self.gini(data)}, {purity}')
+            print(f'\t{gini_data}, {purity}')
             imp_reduction =  gini_data - purity
             if imp_reduction < best_purity:
                 #print(f'\tNew best impurity: {imp_reduction}')
@@ -125,11 +128,13 @@ class DecisionTree:
        
         left = data[data[attribute] <= split]
         right = data[data[attribute] > split]
-
+        print(f'Left: {len(left)} Right: {len(right)}')
+        ''' Remove recursion while debugging
         if left.shape[0] > 0:
             node.add_child(self.insert(left))
         if right.shape[0] > 0:
             node.add_child(self.insert(right))
+        '''
 
         return node
 
@@ -152,6 +157,25 @@ class DecisionTree:
         self.root = self.insert(data)
         self.print_tree(self.root)
 
-    # REturn the list of assigned class identities
-    def fit(self, data: pd.DataFrame) -> list: 
-        pass
+    def get_class(self, row: pd.Series, node=None) -> str:
+        # For the first assignment
+        node = self.root if not node else node
+
+        if node.is_leaf:
+            return node.label
+        attr = node.attribute
+        print(f'Checking {attr} {row[attr]} <= {node.split_point}')
+        if row[attr] <= node.split_point:
+            left = node.get_left()
+            self.get_class(row, left)
+        else:
+            right = node.get_right()
+            self.get_class(row, right)
+
+    def test(self, data: pd.DataFrame) -> list:
+        # Get the class assignment for every element
+        classes = []
+        for index, row in data.iterrows():
+            classes.append(self.get_class(row))
+            
+        return classes
