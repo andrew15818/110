@@ -12,6 +12,7 @@ class Node:
         self.purity = None
         self.parent = None
         self.children = []
+        self.label= ""
 
     def add_child(self, node):
         node.parent = self
@@ -47,7 +48,8 @@ class DecisionTree:
         if self.method == 'gini':
             lesser = data[data[feature_name] <= split_point]
             greater = data[data[feature_name] > split_point]
-            return self.gini(lesser) + self.gini(greater)
+            x = (len(lesser)* self.gini(lesser) + len(greater) * self.gini(greater)) / len(data)
+            return x
             
 
         
@@ -59,6 +61,7 @@ class DecisionTree:
         for i in range(len(srt)-1):
             n1 = srt.values[i]
             n2 = srt.values[i+1]
+
             split_point = (n1 + n2) / 2
             
             split_purity = self.purity(data, featcol.name, split_point)
@@ -72,71 +75,83 @@ class DecisionTree:
     def _get_best_attribute(self, data: pd.DataFrame) -> (str, float, float):
         best_split_value, best_purity = None, 10000 
         best_attribute = ""
+        gini_data = self.gini(data)
+
+
         for attribute in self.features:
+            #print(f'Checking {attribute}')
             purity, point = self._attribute_best_split_cont(data, data[attribute])
-            if purity < best_purity:
-                best_purity = purity
+            #print(f'\t{self.gini(data)}, {purity}')
+            imp_reduction =  gini_data - purity
+            if imp_reduction < best_purity:
+                #print(f'\tNew best impurity: {imp_reduction}')
+                best_purity = imp_reduction
                 best_split_point = point
                 best_attribute = attribute
                
         return best_attribute, best_purity, best_split_point
 
-    def insert(self, data:pd.DataFrame, attributes:list, parent:Node) -> Node:
-        #print(f'Inserting item of size {len(data)}')
-        column_len = len(data.columns)
+    def insert(self, data:pd.DataFrame) -> Node:
+        '''
+        TODO: 
+        1. Check if the data is empty or purity is zero.
+        2. Find the best feature to split on.
+        3. Split the node into left and right.
+        4. Recurse on two halves.
+        '''
         node = Node()
-        classes = data.iloc[:,column_len-1]
-        
-        # All nodes belong to same class
-        if self._all_single_class(classes):
-            # Create a leaf node with current label
-            node.is_leaf = True
-            node.attribute = classes.iloc[0]
-            return node
-        
-        # No more attributes to split on
-        if len(attributes) == 0:
-            # TODO: Maybe index error
-            majority = classes.mode()[0]
-            node.is_leaf = True
-            node.label = majority
+
+        #if data.shape[0] == 0:
+        #    return None
+
+        data_purity = self.gini(data) 
+        if data_purity == 0:
+            node.is_leaf = True 
+            # Get the last label
+            node.label = data.iloc[0].iloc[-1]
+
             return node
 
-       # TODO: If list is discrete and multi-branching allowed 
+        attribute, purity, split = self._get_best_attribute(data) 
 
-        attribute, purity, split_point = self._get_best_attribute(data)
-        print(f'purity: {purity}, split point: {split_point}, {attribute}')
-        left = data[data[attribute] <= split_point] 
-        right = data[data[attribute] > split_point] 
-            
-
+        if purity <= 0:
+            node.is_leaf = True
+            #node.label = data[:,self.shape[0] -1].iloc[0]
+            return node
         node.attribute = attribute
-        node.split_point = split_point
-        node.parent = parent
         node.purity = purity
-        parent.add_child(node)
-        
-        if len(left) == 0 or len(right) == 0:
-            node.is_leaf = True
-            return
+        node.split_point = split
 
-        self.insert(left, attributes, node)
-        self.insert(right, attributes, node)
+       
+        left = data[data[attribute] <= split]
+        right = data[data[attribute] > split]
+
+        if left.shape[0] > 0:
+            node.add_child(self.insert(left))
+        if right.shape[0] > 0:
+            node.add_child(self.insert(right))
+
+        return node
 
     # For debug
     def print_tree(self, node):
-        print(f'Node attribute: {node.attribute}\t split_point: {node.split_point}, purity: {node.purity}')
+        if node.is_leaf:
+            print(f'Class: {node.label} ', end="")
+        else:
+            print(f'Attribute: {node.attribute} ', end="")
+
+        print(f'split_point: {node.split_point}, purity: {node.purity}')
         for child in node.children:
             self.print_tree(child)
-        print('Returning')
+        print('Returning\n')
 
     # Start the building process
     def run(self, data):
         self.features = data.columns[:-1]
         self.classes = data.iloc[:,-1].unique()
-        self.insert(data, data.columns, self.root)
-        #self.print_tree(self.root)
+        self.root = self.insert(data)
+        self.print_tree(self.root)
 
-    def fit(self, data):
+    # REturn the list of assigned class identities
+    def fit(self, data: pd.DataFrame) -> list: 
         pass
-        
