@@ -38,6 +38,11 @@ def run(algorithm, data):
     if algoName == 'decisiontree':
         algo = DecisionTree()
     algo.run(data)
+    return algo
+
+def user_test(algo, test_data:pd.DataFrame) -> list:
+    classes = algo.test(test_data) 
+    return classes
 
 def compare():
     dt = tree.DecisionTreeClassifier()
@@ -48,14 +53,21 @@ def compare():
             feature_names=iris.feature_names,
             class_names=iris.target_names,
             filled=True)
-    plt.savefig("Figure-1.png")
-    
+    #plt.savefig("Figure-1.png")
+    return dt
 def main():
+    # Training
     args = get_args() 
     data = get_data(args.file)
-    run(args.algorithm, data)
-    compare()
-    
+    algo = run(args.algorithm, data)
 
+    # Testing 
+    test_data = get_data('data/iris_test.csv')
+    model = compare()
+    model_classes = model.predict(test_data.to_numpy()[:,:-1])
+    user_classes = user_test(algo, test_data)
+    print(f'models preds: {model_classes} len={len(model_classes)}')
+    print(f'Ours: {user_classes} len={len(user_classes)}')
+    
 if __name__=='__main__':
     main()

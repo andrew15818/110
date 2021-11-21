@@ -70,28 +70,27 @@ class DecisionTree:
             
             split_purity = self.purity(data, featcol.name, split_point)
             if split_purity < best_purity:
-                print(f'\t\tConsidering {split_purity}')
+                #print(f'\t\tConsidering {split_purity}')
                 best_purity = split_purity
                 best_split_point = split_point
         return best_purity, best_split_point
 
     # TODO: Also allow for discrete values
     def _get_best_attribute(self, data: pd.DataFrame) -> (str, float, float):
-        best_split_value, best_purity = None, 10000 
+        best_split_point, best_purity = None, 10000 
         best_attribute = ""
         gini_data = self.gini(data)
 
         for attribute in self.features:
-            print(f'Checking {attribute}')
             purity, point = self._attribute_best_split_cont(data, data[attribute])
-            print(f'\t{gini_data}, {purity}')
-            imp_reduction =  gini_data - purity
+           
+            imp_reduction =  purity#gini_data - purity
             if imp_reduction < best_purity:
                 #print(f'\tNew best impurity: {imp_reduction}')
                 best_purity = imp_reduction
                 best_split_point = point
                 best_attribute = attribute
-               
+            #print(f'\t{gini_data}, {purity}, current best {best_purity}')    
         return best_attribute, best_purity, best_split_point
 
     def insert(self, data:pd.DataFrame) -> Node:
@@ -112,14 +111,13 @@ class DecisionTree:
             node.is_leaf = True 
             # Get the last label
             node.label = data.iloc[0].iloc[-1]
-
             return node
 
         attribute, purity, split = self._get_best_attribute(data) 
 
         if purity <= 0:
             node.is_leaf = True
-            #node.label = data[:,self.shape[0] -1].iloc[0]
+            node.label = data.iloc[0].iloc[-1]
             return node
         node.attribute = attribute
         node.purity = purity
@@ -128,13 +126,11 @@ class DecisionTree:
        
         left = data[data[attribute] <= split]
         right = data[data[attribute] > split]
-        print(f'Left: {len(left)} Right: {len(right)}')
-        ''' Remove recursion while debugging
+        #print(f'Left: {len(left)} Right: {len(right)}')
         if left.shape[0] > 0:
             node.add_child(self.insert(left))
         if right.shape[0] > 0:
             node.add_child(self.insert(right))
-        '''
 
         return node
 
@@ -155,7 +151,7 @@ class DecisionTree:
         self.features = data.columns[:-1]
         self.classes = data.iloc[:,-1].unique()
         self.root = self.insert(data)
-        self.print_tree(self.root)
+        #self.print_tree(self.root)
 
     def get_class(self, row: pd.Series, node=None) -> str:
         # For the first assignment
@@ -164,13 +160,13 @@ class DecisionTree:
         if node.is_leaf:
             return node.label
         attr = node.attribute
-        print(f'Checking {attr} {row[attr]} <= {node.split_point}')
+        #print(f'Checking {attr} {row[attr]} <= {node.split_point}')
         if row[attr] <= node.split_point:
             left = node.get_left()
-            self.get_class(row, left)
+            return self.get_class(row, left)
         else:
             right = node.get_right()
-            self.get_class(row, right)
+            return self.get_class(row, right)
 
     def test(self, data: pd.DataFrame) -> list:
         # Get the class assignment for every element
