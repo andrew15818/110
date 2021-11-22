@@ -1,10 +1,12 @@
+import pandas as pd
+import argparse
+
 from sklearn import tree
 from sklearn.datasets import load_iris
-import argparse
 from matplotlib import pyplot as plt
-import pandas as pd
 
 from decisiontree import DecisionTree 
+from naivebayes import NaiveBayes
 
 def get_args():
     parser = argparse.ArgumentParser(
@@ -13,17 +15,18 @@ def get_args():
             ) 
     parser.add_argument(
             '-f', '--file',
-            type=str, default="data/iris_dataset.csv"
+            type=str, default="data/iris_dataset.csv",
+            help='Dataset, last column should have the class label.'
             )
     parser.add_argument(
             '-a', '--algorithm',
             type=str, default='decisiontree',
-            help='choose algorithm to use. Can use decisiontree, bayes, knn'
+            help='Choose algorithm to use. Can use decisiontree, naivebayes, knn'
             )
     parser.add_argument(
             '-c', '--continuous',
             type=bool, default=True,
-            help='continous data or discrete.'
+            help='Continous data or discrete.'
             )
     return parser.parse_args()
 
@@ -37,7 +40,11 @@ def run(algorithm, data):
     algo = None
     if algoName == 'decisiontree':
         algo = DecisionTree()
-    algo.run(data)
+    # Bayes doesn't need training 
+    elif algoName == 'naivebayes':
+        algo = NaiveBayes(labels=data.iloc[:,-1].unique())
+
+    algo.run(data) 
     return algo
 
 def user_test(algo, test_data:pd.DataFrame) -> list:
@@ -60,7 +67,7 @@ def main():
     args = get_args() 
     data = get_data(args.file)
     algo = run(args.algorithm, data)
-
+    '''
     # Testing 
     test_data = get_data('data/iris_test.csv')
     model = compare()
@@ -68,6 +75,7 @@ def main():
     user_classes = user_test(algo, test_data)
     print(f'models preds: {model_classes} len={len(model_classes)}')
     print(f'Ours: {user_classes} len={len(user_classes)}')
+    '''
     
 if __name__=='__main__':
     main()
