@@ -114,7 +114,7 @@ class DecisionTree:
             return node
 
         attribute, purity, split = self._get_best_attribute(data) 
-
+        print(f'Chose {attribute}')
         if purity <= 0:
             node.is_leaf = True
             node.label = data.iloc[0].iloc[-1]

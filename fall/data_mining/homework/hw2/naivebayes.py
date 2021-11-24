@@ -18,13 +18,15 @@ class NaiveBayes:
         mu = D[attribute].mean()
         sig = D[attribute].std()
         
-        return norm.pdf(val)
+        final = norm.pdf(val, mu, sig)
+        #print(f'\tparams to normal function : {final} = {val, mu, sig}' )
+        return final
 
     # Prior class probability P(Ci)
     def _class_prior_prob(self, data:pd.DataFrame, label:str) -> float:
         # Name of the last column with class label
         colname = data.columns[-1]
-        return (data[colname] == label).sum()
+        return (data[colname] == label).sum() / len(data)
 
 
     # main entry point
@@ -40,10 +42,12 @@ class NaiveBayes:
                 posterior = 1
                 for attribute, value in zip(attribs,featvalues):
                     posterior *=  self._posterior_prob(data, ci, attribute, value)
+                print(class_prior, posterior)
                 if posterior * class_prior > best_prob:
                     best_prob = posterior
                     best_class = ci
+                    print(f'best_class {best_class} ')
             classes.append(best_class)
-        print(classes)
-                # Check if this is best prob
+        print((data.iloc[:,-1] == classes).sum() / len(data))
+        # Check if this is best prob
 

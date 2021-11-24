@@ -2,11 +2,14 @@ import pandas as pd
 import argparse
 
 from sklearn import tree
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_iris
 from matplotlib import pyplot as plt
 
 from decisiontree import DecisionTree 
 from naivebayes import NaiveBayes
+
 
 def get_args():
     parser = argparse.ArgumentParser(
@@ -52,20 +55,29 @@ def user_test(algo, test_data:pd.DataFrame) -> list:
     return classes
 
 def compare():
-    dt = tree.DecisionTreeClassifier()
-    iris = load_iris()
-    dt = dt.fit(iris.data, iris.target)
-    fig = plt.figure(figsize=(25,20))
-    _ = tree.plot_tree(dt, 
-            feature_names=iris.feature_names,
-            class_names=iris.target_names,
-            filled=True)
-    #plt.savefig("Figure-1.png")
-    return dt
+    algo = None
+    if args.algo.lower()  == 'decision_tree':
+        algo = tree.DecisionTreeClassifier()
+        iris = load_iris()
+        dt = algo.fit(iris.data, iris.target)
+        fig = plt.figure(figsize=(25,20))
+        _ = tree.plot_tree(dt, 
+                feature_names=iris.feature_names,
+                class_names=iris.target_names,
+                filled=True)
+        #plt.savefig("Figure-1.png")
+    elif args.algo.lower() == 'naivebayes':
+        algo = GaussianNB()
+        X, Y = load_iris(return_X_y=True)
+        x_train, y_train, x_test, y_test = train_test_split(X, Y) 
+        preds = algo.fit(x_train, y_train).predict(x_test)
+
+    return algo 
 def main():
     # Training
     args = get_args() 
     data = get_data(args.file)
+    x_train, y_train, x_test, y_test = train_test_split(data, )
     algo = run(args.algorithm, data)
     '''
     # Testing 
