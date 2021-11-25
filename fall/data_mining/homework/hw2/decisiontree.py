@@ -29,6 +29,7 @@ class DecisionTree:
         self.root = Node()
         self.method = method
         self.classes = [] 
+        self.already_run  = 0 # If tree has been built, test in self.run() instead
 
     # Check if all the classLabels are the same
     def _all_single_class(self, classes) -> bool:
@@ -114,7 +115,7 @@ class DecisionTree:
             return node
 
         attribute, purity, split = self._get_best_attribute(data) 
-
+        #print(f'Chose {attribute}')
         if purity <= 0:
             node.is_leaf = True
             node.label = data.iloc[0].iloc[-1]
@@ -148,9 +149,14 @@ class DecisionTree:
 
     # Start the building process
     def run(self, data):
+        # if  tree has already been built, test it instead
+        if self.already_run != 0:
+            return self.test(data)
+
         self.features = data.columns[:-1]
         self.classes = data.iloc[:,-1].unique()
         self.root = self.insert(data)
+        self.already_run = 1
         #self.print_tree(self.root)
 
     def get_class(self, row: pd.Series, node=None) -> str:
