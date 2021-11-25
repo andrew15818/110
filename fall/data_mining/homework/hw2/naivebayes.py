@@ -18,21 +18,23 @@ class NaiveBayes:
         mu = D[attribute].mean()
         sig = D[attribute].std()
         
-        return norm.pdf(val)
+        final = norm.pdf(val, mu, sig)
+        #print(f'\tparams to normal function : {final} = {val, mu, sig}' )
+        return final
 
     # Prior class probability P(Ci)
     def _class_prior_prob(self, data:pd.DataFrame, label:str) -> float:
         # Name of the last column with class label
         colname = data.columns[-1]
-        return (data[colname] == label).sum()
+        return (data[colname] == label).sum() / len(data)
 
 
     # main entry point
     def run(self, data):
         classes = [] 
+        attribs = data.columns[:-1]
         for item in data.itertuples(): # item[0] is the index
             featvalues = item[1:-1]
-            attribs = item._fields[1:-1]
             best_prob = 0
             best_class = ""
             for ci in self.labels:
@@ -40,11 +42,13 @@ class NaiveBayes:
                 posterior = 1
                 for attribute, value in zip(attribs, featvalues):
                     posterior *=  self._posterior_prob(data, ci, attribute, value)
-                if posterior * class_prior >= best_prob:
+                #print(class_prior, posterior)
+                if posterior * class_prior > best_prob:
                     best_prob = posterior
                     best_class = ci
+                    #print(f'best_class {best_class} ')
             classes.append(best_class)
-            print('\n')
-        print(classes)
-                # Check if this is best prob
+        return classes
+        # DEBUG: check the accuracy on the training set
+        # Check if this is best prob
 
