@@ -54,9 +54,9 @@ def user_test(algo, test_data:pd.DataFrame) -> list:
     classes = algo.test(test_data) 
     return classes
 
-def compare():
+def compare(algoname, train):
     algo = None
-    if args.algo.lower()  == 'decision_tree':
+    if  algoname  == 'decision_tree':
         algo = tree.DecisionTreeClassifier()
         iris = load_iris()
         dt = algo.fit(iris.data, iris.target)
@@ -66,28 +66,26 @@ def compare():
                 class_names=iris.target_names,
                 filled=True)
         #plt.savefig("Figure-1.png")
-    elif args.algo.lower() == 'naivebayes':
+    elif algoname  == 'naivebayes':
         algo = GaussianNB()
-        X, Y = load_iris(return_X_y=True)
-        x_train, y_train, x_test, y_test = train_test_split(X, Y) 
-        preds = algo.fit(x_train, y_train).predict(x_test)
-
+        x_train = train.iloc[:,:-1]
+        y_train = train.iloc[:,-1]
+        algo.fit(x_train, y_train) 
     return algo 
 def main():
     # Training
     args = get_args() 
     data = get_data(args.file)
-    x_train, y_train, x_test, y_test = train_test_split(data, )
-    algo = run(args.algorithm, data)
-    '''
+    X, y = train_test_split(
+                data, 
+                test_size=0.2)
+    algo = run(args.algorithm, X)
+    ours = algo.run(y)
+    sklearn_model = compare(args.algorithm, X)
+
     # Testing 
-    test_data = get_data('data/iris_test.csv')
-    model = compare()
-    model_classes = model.predict(test_data.to_numpy()[:,:-1])
-    user_classes = user_test(algo, test_data)
-    print(f'models preds: {model_classes} len={len(model_classes)}')
-    print(f'Ours: {user_classes} len={len(user_classes)}')
-    '''
-    
+    preds = sklearn_model.predict(y.iloc[:,:-1])
+    print(f'Sklearn accuracy: {(y.iloc[:,-1] == preds).sum() / y.shape[0]}')
+    print(f'Ours: {(y.iloc[:,-1] == ours).sum() / y.shape[0]}')
 if __name__=='__main__':
     main()

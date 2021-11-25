@@ -32,9 +32,9 @@ class NaiveBayes:
     # main entry point
     def run(self, data):
         classes = [] 
+        attribs = data.columns[:-1]
         for item in data.itertuples(): # item[0] is the index
             featvalues = item[1:-1]
-            attribs = item._fields[1:-1]
             best_prob = 0
             best_class = ""
             for ci in self.labels:
@@ -42,12 +42,13 @@ class NaiveBayes:
                 posterior = 1
                 for attribute, value in zip(attribs,featvalues):
                     posterior *=  self._posterior_prob(data, ci, attribute, value)
-                print(class_prior, posterior)
+                #print(class_prior, posterior)
                 if posterior * class_prior > best_prob:
                     best_prob = posterior
                     best_class = ci
-                    print(f'best_class {best_class} ')
+                    #print(f'best_class {best_class} ')
             classes.append(best_class)
-        print((data.iloc[:,-1] == classes).sum() / len(data))
+        return classes
+        # DEBUG: check the accuracy on the training set
         # Check if this is best prob
 
