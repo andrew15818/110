@@ -38,12 +38,13 @@ class NaiveBayes:
             for ci in self.labels:
                 class_prior = self._class_prior_prob(data, ci)
                 posterior = 1
-                for attribute, value in zip(attribs,featvalues):
+                for attribute, value in zip(attribs, featvalues):
                     posterior *=  self._posterior_prob(data, ci, attribute, value)
-                if posterior * class_prior > best_prob:
+                if posterior * class_prior >= best_prob:
                     best_prob = posterior
                     best_class = ci
             classes.append(best_class)
+            print('\n')
         print(classes)
                 # Check if this is best prob
 
