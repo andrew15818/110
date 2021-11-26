@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 
 from decisiontree import DecisionTree 
 from naivebayes import NaiveBayes
+from model import NeuralClassifier
 
 
 def get_args():
@@ -24,7 +25,7 @@ def get_args():
     parser.add_argument(
             '-a', '--algorithm',
             type=str, default='decisiontree',
-            help='Choose algorithm to use. Can use decisiontree, naivebayes, knn'
+            help='Choose algorithm to use. Can use decisiontree, naivebayes, neural.'
             )
     parser.add_argument(
             '-c', '--continuous',
