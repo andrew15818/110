@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 from decisiontree import DecisionTree 
 from naivebayes import NaiveBayes
-from model import NeuralClassifier
+from model import NeuralClassifier, train_model
 
 
 def get_args():
@@ -47,8 +47,15 @@ def run(algorithm, data):
     # Bayes doesn't need training 
     elif algoName == 'naivebayes':
         algo = NaiveBayes(labels=data.iloc[:,-1].unique())
+    # TODO: Debug this once model is finished.
+    #algo.run(data) 
+    elif algoName == 'neural':
+        # Remove the column containing the class
+        dims = len(data.columns) - 1
+        class_num = len(data.iloc[:,-1].unique())
+        algo = train_model(data, dims, class_num)
 
-    algo.run(data) 
+    
     return algo
 
 def user_test(algo, test_data:pd.DataFrame) -> list:
@@ -76,8 +83,9 @@ def main():
     X, y = train_test_split(
                 data, 
                 test_size=0.2)
-    print(y.iloc[:,:-1])
+    #print(y.iloc[:,:-1])
     algo = run(args.algorithm, X)
+    """
     ours = algo.run(y)
     sklearn_model = compare(args.algorithm, X)
 
@@ -85,5 +93,6 @@ def main():
     preds = sklearn_model.predict(y.iloc[:,:-1])
     print(f'Sklearn accuracy: {(y.iloc[:,-1] == preds).sum() / y.shape[0]}')
     print(f'Ours: {(y.iloc[:,-1] == ours).sum() / y.shape[0]}')
+    """
 if __name__=='__main__':
     main()
