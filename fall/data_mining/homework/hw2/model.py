@@ -45,6 +45,7 @@ class NeuralClassifier(nn.Module):
     """
     def __init__(self, dims:int, class_num:int):
         self.label_dict = OrderedDict()
+        self.path = None
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print(f'Running on {device}.')
         super(NeuralClassifier, self).__init__()
@@ -61,21 +62,14 @@ class NeuralClassifier(nn.Module):
         x = F.softmax(self.linear3(x))
         
         return x 
-
+    def set_path(self, path):
+        self.path = path
        
-    # Preprocess the data and pass it through model
-    def run(self, data):
-
-        # Get all the rows, exclude the class label
-        inputs = data.values[:,:-1].astype(np.float32)
-        inputs = torch.tensor(inputs)
-
-        # Start the feed-forward 
 
 # TODO: How do we better adjust the hyperparams?
 def train_model(data, dims:int, class_num:int) -> NeuralClassifier:
     # Hyperparameters
-    epochs = 20
+    epochs = 32
     batch_size = 16# Smaller for smaller sets?
     learning_rate = 0.01
     
@@ -101,12 +95,29 @@ def train_model(data, dims:int, class_num:int) -> NeuralClassifier:
             loss = criterion(outputs, y_train)
             loss.backward()
             optimizer.step()
-            print(loss.item())
+            losses.append(loss.item())
     print('Finished training')
-    PATH = './checkpoints/model.pth'
-    torch.save(model.state_dict(), PATH)
+    model.set_path('./checkpoints/model.pth')
+    torch.save(model.state_dict(), model.path)
     return model
 
 #TODO: Test model
-def test_model(model:NeuralClassifier):
-    pass
+def test_model(model:NeuralClassifier, testdata:pd.DataFrame):
+    # Custom dataloader for our dataset
+    dataset = customDataset(testdata)
+    dataloader = DataLoader(dataset)
+    
+    total = 0
+    correct = 0
+    with torch.no_grad():
+        for data in dataloader:
+            # Inference
+            attrs, ground_truth = data
+            guess = model(attrs)
+            _, predicted = torch.max(guess.data, 1)
+            print(ground_truth , predicted)
+
+            total += ground_truth.size(0)
+            correct += (predicted == ground_truth).sum().item()
+    print(f'Total Accuracy: {100 * correct / total}')
+
