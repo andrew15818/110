@@ -1,0 +1,676 @@
+%%
+% Copyright (c) 2017 - 2020, Pascal Wagler;
+% Copyright (c) 2014 - 2020, John MacFarlane
+%
+% All rights reserved.
+%
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions
+% are met:
+%
+% - Redistributions of source code must retain the above copyright
+% notice, this list of conditions and the following disclaimer.
+%
+% - Redistributions in binary form must reproduce the above copyright
+% notice, this list of conditions and the following disclaimer in the
+% documentation and/or other materials provided with the distribution.
+%
+% - Neither the name of John MacFarlane nor the names of other
+% contributors may be used to endorse or promote products derived
+% from this software without specific prior written permission.
+%
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+% "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+% LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+% FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+% COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+% INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+% BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+% LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+% CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+% LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+% ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+% POSSIBILITY OF SUCH DAMAGE.
+%%
+
+%%
+% This is the Eisvogel pandoc LaTeX template.
+%
+% For usage information and examples visit the official GitHub page:
+% https://github.com/Wandmalfarbe/pandoc-latex-template
+%%
+
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames*,x11names*,table}{xcolor}
+%
+\documentclass[
+  paper=a4,
+,captions=tableheading
+]{scrartcl}
+\usepackage{lmodern}
+\usepackage{setspace}
+\setstretch{1.2}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\definecolor{default-linkcolor}{HTML}{A50000}
+\definecolor{default-filecolor}{HTML}{A50000}
+\definecolor{default-citecolor}{HTML}{4077C0}
+\definecolor{default-urlcolor}{HTML}{4077C0}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Data Mining Homework 2 Report},
+  hidelinks,
+  breaklinks=true,
+  pdfcreator={LaTeX via pandoc with the Eisvogel template}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=2.5cm,includehead=true,includefoot=true,centering,]{geometry}
+\usepackage{listings}
+\newcommand{\passthrough}[1]{#1}
+\lstset{defaultdialect=[5.3]Lua}
+\lstset{defaultdialect=[x86masm]Assembler}
+\usepackage{longtable,booktabs}
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+% add backlinks to footnote references, cf. https://tex.stackexchange.com/questions/302266/make-footnote-clickable-both-ways
+\usepackage{footnotebackref}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+% Make use of float-package and set default placement for figures to H.
+% The option H means 'PUT IT HERE' (as  opposed to the standard h option which means 'You may put it here if you like').
+\usepackage{float}
+\floatplacement{figure}{H}
+
+
+\title{Data Mining Homework 2 Report}
+\date{}
+
+
+
+%%
+%% added
+%%
+
+%
+% language specification
+%
+% If no language is specified, use English as the default main document language.
+%
+
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[shorthands=off,main=english]{babel}
+\else
+    % Workaround for bug in Polyglossia that breaks `\familydefault` when `\setmainlanguage` is used.
+  % See https://github.com/Wandmalfarbe/pandoc-latex-template/issues/8
+  % See https://github.com/reutenauer/polyglossia/issues/186
+  % See https://github.com/reutenauer/polyglossia/issues/127
+  \renewcommand*\familydefault{\sfdefault}
+    % load polyglossia as late as possible as it *could* call bidi if RTL lang (e.g. Hebrew or Arabic)
+  \usepackage{polyglossia}
+  \setmainlanguage[]{english}
+\fi
+
+
+
+%
+% for the background color of the title page
+%
+\usepackage{pagecolor}
+\usepackage{afterpage}
+\usepackage[margin=2.5cm,includehead=true,includefoot=true,centering]{geometry}
+
+%
+% break urls
+%
+\PassOptionsToPackage{hyphens}{url}
+
+%
+% When using babel or polyglossia with biblatex, loading csquotes is recommended
+% to ensure that quoted texts are typeset according to the rules of your main language.
+%
+\usepackage{csquotes}
+
+%
+% captions
+%
+\definecolor{caption-color}{HTML}{777777}
+\usepackage[font={stretch=1.2}, textfont={color=caption-color}, position=top, skip=4mm, labelfont=bf, singlelinecheck=false, justification=raggedright]{caption}
+\setcapindent{0em}
+
+%
+% blockquote
+%
+\definecolor{blockquote-border}{RGB}{221,221,221}
+\definecolor{blockquote-text}{RGB}{119,119,119}
+\usepackage{mdframed}
+\newmdenv[rightline=false,bottomline=false,topline=false,linewidth=3pt,linecolor=blockquote-border,skipabove=\parskip]{customblockquote}
+\renewenvironment{quote}{\begin{customblockquote}\list{}{\rightmargin=0em\leftmargin=0em}%
+\item\relax\color{blockquote-text}\ignorespaces}{\unskip\unskip\endlist\end{customblockquote}}
+
+%
+% Source Sans Pro as the de­fault font fam­ily
+% Source Code Pro for monospace text
+%
+% 'default' option sets the default
+% font family to Source Sans Pro, not \sfdefault.
+%
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+  \else % if not pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+
+  % XeLaTeX specific adjustments for straight quotes: https://tex.stackexchange.com/a/354887
+  % This issue is already fixed (see https://github.com/silkeh/latex-sourcecodepro/pull/5) but the
+  % fix is still unreleased.
+  % TODO: Remove this workaround when the new version of sourcecodepro is released on CTAN.
+  \ifxetex
+    \makeatletter
+    \defaultfontfeatures[\ttfamily]
+      { Numbers   = \sourcecodepro@figurestyle,
+        Scale     = \SourceCodePro@scale,
+        Extension = .otf }
+    \setmonofont
+      [ UprightFont    = *-\sourcecodepro@regstyle,
+        ItalicFont     = *-\sourcecodepro@regstyle It,
+        BoldFont       = *-\sourcecodepro@boldstyle,
+        BoldItalicFont = *-\sourcecodepro@boldstyle It ]
+      {SourceCodePro}
+    \makeatother
+  \fi
+  \fi
+
+%
+% heading color
+%
+\definecolor{heading-color}{RGB}{40,40,40}
+\addtokomafont{section}{\color{heading-color}}
+% When using the classes report, scrreprt, book,
+% scrbook or memoir, uncomment the following line.
+%\addtokomafont{chapter}{\color{heading-color}}
+
+%
+% variables for title and author
+%
+\usepackage{titling}
+\title{Data Mining Homework 2 Report}
+\author{}
+
+%
+% tables
+%
+
+\definecolor{table-row-color}{HTML}{F5F5F5}
+\definecolor{table-rule-color}{HTML}{999999}
+
+%\arrayrulecolor{black!40}
+\arrayrulecolor{table-rule-color}     % color of \toprule, \midrule, \bottomrule
+\setlength\heavyrulewidth{0.3ex}      % thickness of \toprule, \bottomrule
+\renewcommand{\arraystretch}{1.3}     % spacing (padding)
+
+
+%
+% remove paragraph indention
+%
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+
+%
+%
+% Listings
+%
+%
+
+
+%
+% general listing colors
+%
+\definecolor{listing-background}{HTML}{F7F7F7}
+\definecolor{listing-rule}{HTML}{B3B2B3}
+\definecolor{listing-numbers}{HTML}{B3B2B3}
+\definecolor{listing-text-color}{HTML}{000000}
+\definecolor{listing-keyword}{HTML}{435489}
+\definecolor{listing-keyword-2}{HTML}{1284CA} % additional keywords
+\definecolor{listing-keyword-3}{HTML}{9137CB} % additional keywords
+\definecolor{listing-identifier}{HTML}{435489}
+\definecolor{listing-string}{HTML}{00999A}
+\definecolor{listing-comment}{HTML}{8E8E8E}
+
+\lstdefinestyle{eisvogel_listing_style}{
+  language         = java,
+  numbers          = left,
+  xleftmargin      = 2.7em,
+  framexleftmargin = 2.5em,
+  backgroundcolor  = \color{listing-background},
+  basicstyle       = \color{listing-text-color}\linespread{1.0}\small\ttfamily{},
+  breaklines       = true,
+  frame            = single,
+  framesep         = 0.19em,
+  rulecolor        = \color{listing-rule},
+  frameround       = ffff,
+  tabsize          = 4,
+  numberstyle      = \color{listing-numbers},
+  aboveskip        = 1.0em,
+  belowskip        = 0.1em,
+  abovecaptionskip = 0em,
+  belowcaptionskip = 1.0em,
+  keywordstyle     = {\color{listing-keyword}\bfseries},
+  keywordstyle     = {[2]\color{listing-keyword-2}\bfseries},
+  keywordstyle     = {[3]\color{listing-keyword-3}\bfseries\itshape},
+  sensitive        = true,
+  identifierstyle  = \color{listing-identifier},
+  commentstyle     = \color{listing-comment},
+  stringstyle      = \color{listing-string},
+  showstringspaces = false,
+  escapeinside     = {/*@}{@*/}, % Allow LaTeX inside these special comments
+  literate         =
+  {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+  {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+  {à}{{\`a}}1 {è}{{\'e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+  {À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+  {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+  {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+  {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+  {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+  {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1 {ß}{{\ss}}1
+  {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+  {€}{{\EUR}}1 {£}{{\pounds}}1 {«}{{\guillemotleft}}1
+  {»}{{\guillemotright}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1
+  {…}{{\ldots}}1 {≥}{{>=}}1 {≤}{{<=}}1 {„}{{\glqq}}1 {“}{{\grqq}}1
+  {”}{{''}}1
+}
+\lstset{style=eisvogel_listing_style}
+
+%
+% Java (Java SE 12, 2019-06-22)
+%
+\lstdefinelanguage{Java}{
+  morekeywords={
+    % normal keywords (without data types)
+    abstract,assert,break,case,catch,class,continue,default,
+    do,else,enum,exports,extends,final,finally,for,if,implements,
+    import,instanceof,interface,module,native,new,package,private,
+    protected,public,requires,return,static,strictfp,super,switch,
+    synchronized,this,throw,throws,transient,try,volatile,while,
+    % var is an identifier
+    var
+  },
+  morekeywords={[2] % data types
+    % primitive data types
+    boolean,byte,char,double,float,int,long,short,
+    % String
+    String,
+    % primitive wrapper types
+    Boolean,Byte,Character,Double,Float,Integer,Long,Short
+    % number types
+    Number,AtomicInteger,AtomicLong,BigDecimal,BigInteger,DoubleAccumulator,DoubleAdder,LongAccumulator,LongAdder,Short,
+    % other
+    Object,Void,void
+  },
+  morekeywords={[3] % literals
+    % reserved words for literal values
+    null,true,false,
+  },
+  sensitive,
+  morecomment  = [l]//,
+  morecomment  = [s]{/*}{*/},
+  morecomment  = [s]{/**}{*/},
+  morestring   = [b]",
+  morestring   = [b]',
+}
+
+\lstdefinelanguage{XML}{
+  morestring      = [b]",
+  moredelim       = [s][\bfseries\color{listing-keyword}]{<}{\ },
+  moredelim       = [s][\bfseries\color{listing-keyword}]{</}{>},
+  moredelim       = [l][\bfseries\color{listing-keyword}]{/>},
+  moredelim       = [l][\bfseries\color{listing-keyword}]{>},
+  morecomment     = [s]{<?}{?>},
+  morecomment     = [s]{<!--}{-->},
+  commentstyle    = \color{listing-comment},
+  stringstyle     = \color{listing-string},
+  identifierstyle = \color{listing-identifier}
+}
+
+%
+% header and footer
+%
+\usepackage{fancyhdr}
+
+\fancypagestyle{eisvogel-header-footer}{
+  \fancyhead{}
+  \fancyfoot{}
+  \lhead[]{Data Mining Homework 2 Report}
+  \chead[]{}
+  \rhead[Data Mining Homework 2 Report]{}
+  \lfoot[\thepage]{}
+  \cfoot[]{}
+  \rfoot[]{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+\pagestyle{eisvogel-header-footer}
+
+%%
+%% end added
+%%
+
+\begin{document}
+
+%%
+%% begin titlepage
+%%
+\begin{titlepage}
+\newgeometry{left=6cm}
+\newcommand{\colorRule}[3][black]{\textcolor[HTML]{#1}{\rule{#2}{#3}}}
+\begin{flushleft}
+\noindent
+\\[-1em]
+\color[HTML]{5F5F5F}
+\makebox[0pt][l]{\colorRule[435488]{1.3\textwidth}{4pt}}
+\par
+\noindent
+
+{
+  \setstretch{1.4}
+  \vfill
+  \noindent {\huge \textbf{\textsf{Data Mining Homework 2 Report}}}
+    \vskip 2em
+  \noindent {\Large \textsf{}}
+  \vfill
+}
+
+
+\textsf{}
+\end{flushleft}
+\end{titlepage}
+\restoregeometry
+
+%%
+%% end titlepage
+%%
+
+
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+Classification methods have gained importance in many fields as
+obtaining data has become easier. However, due to the sheer amount of
+data available, it remains time-consuming to determine the best way to
+classify the items in a dataset. Data can come in many forms. Most of
+the time, we don't have a reference class for the data we use in
+training our models, that is, the data is unlabeled and the problem is
+``unsupervised''. Depending on the objective of the classification and
+the nature of the data, different algorithms are more appropriate. For
+instance, a Decision Tree classifier, as used in this assignment, is
+used with labeled data, and provides an intuitive and visual explanation
+for its decision. On the other hand, neural networks act more like a
+``black box'' since the programmer designs the model and then the
+parameters change during the backpropagation step in training.
+
+In order to further understand the performance of different
+classification, three classification methods were implemented: a
+Decision Tree Classifier, a Naive Bayes classifier, and a simple neural
+network. These classifiers were then tested using two datasets: the
+famous iris dataset, which contains 150 samples of four attributes each,
+with three classes; and a custom dataset with 427 training samples each
+with 30 attributes, each sample belonging to class 0 or 1.
+
+The iris dataset was chosen due to its small size, which was used as a
+test during the development process. It was also useful to see if there
+was any relevant difference in the same model with data containing
+different amounts of attributes. The second dataset, the custom dataset,
+was selected to measure the resilience of our models with more complex
+data. This dataset had already been used in a previous related
+assignment, so it already was a fitting dataset for a classificaiton
+problem. Both the datasets contained an approximately equal proportion
+of samples from each class.
+
+\hypertarget{training-and-real-world-data}{%
+\subsection{Training and ``Real World''
+Data}\label{training-and-real-world-data}}
+
+When training to perform a classification task, the relation between the
+training and testing data is important. If the training data is not
+representative of the testing data, the information learned during
+training will not adequately predict the testing data. For the datasets
+used in this assignment, we used part of the training data for testing
+with sklearns \passthrough{\lstinline!train\_test\_split!} function,
+which gave us 80\% of the data to use for training and 20\% for testing.
+
+While this approach helped us ensure similarity between the training and
+testing data, when a model is deployed this is not usually the case. A
+company might have to collect its own training data to produce the best
+model. A model which can learn useful information from the training set
+and apply it in the testing set is said to \textbf{generalize} well.
+Generalizaiton and its specifics are an entire area of research in its
+own. Thus, to enusre the best possible performance, the two important
+factors to consider are the nature of the training and testing set, as
+well as the model's ability to apply learned informaiton to an unseen
+dataset.
+
+\hypertarget{decision-trees}{%
+\subsection{Decision Trees}\label{decision-trees}}
+
+Decision Trees have existed for many decades, and remain a useful model
+because they are intuitive and easy to understand for many people.
+Decision Trees are trees whose leaf nodes correposond to class labels
+and whose internal nodes correspond to a decision. When assigning a
+class to a test item, we perform a test at each internal node, e.g.
+\textit{is feature $a$ of item $j$ \geq $x$?} After splitting the
+dataset according to this test, we recurse on the left and right
+children. When we reach a leaf node, we assign the leaf node's class
+label to our current item. The internal nodes can perform a binary split
+or they can have a set of buckets as their children depending on the
+characteristics of the data. In this assignment we implement binary
+decision trees, which might sacrifice some accuracy at the cost of
+simplicity of implementation.
+
+The training and building of the decision tree is done as follows. At
+each node, we take in a dataset \(D\). Then we determine the best
+feature to perform the split on and the best value of that feature
+according to our attribute selection metric, discussed shortly. Once we
+find the best attribute, we split \(D\) according to the attribute
+selection metric. Then we create a new right and left child and recurse
+with the split datasets. Since the tree is binary, the test we perform
+checks whether the each value of the selected feature in \(D\) is
+greater than or less than the value given by our attribute selection
+metric.
+
+\hypertarget{attribute-selection-metric}{%
+\subsubsection{Attribute Selection
+Metric}\label{attribute-selection-metric}}
+
+How do we find the features to perform the split on at each internal
+node? We need some way to quantify the quality of using a certain value
+to split our dataset. While there are many measures, such as information
+gain and the gain ratio, in this implementation we used the Gini index.
+
+The Gini index measures the \emph{impurity} of a dataset, given by
+\begin{equation}
+    \textrm{Gini}(D) = 1 - \sum_{i=1}^{m}p_{i}^{2}
+\end{equation} where \(m\) is the number of classes and \(p_{i}\) is the
+probability that a sample belongs to class \(i\). This measures the
+amount of ``impurity'' or mixture in a dataset. As \(p_{i}\) becomes
+greater, meaning that more items in the dataset belong to the same
+class, the gini index will be lower.
+
+Since we are checking the purity of the proposed split, the total Gini
+index of the attribute is the weighted sum of the gini index of both
+datasets. \begin{equation}
+\textrm{Gini}_{A}(D) = \frac{|D_{1}|}{|D|}\textrm{Gini}(D_{1}) + \frac{|D_{2}|}{|D|}\textrm{Gini}(D_{2})
+\end{equation}
+
+The final decision for the attribute and split value is done by choosing
+the value that mimiizes the difference \begin{equation}
+\Delta\textrm{Gini}(A) = \textrm{Gini}(D) - \textrm{Gini}_{A}(D)
+\end{equation}
+
+\hypertarget{naive-bayes-classifier}{%
+\subsection{Naive Bayes Classifier}\label{naive-bayes-classifier}}
+
+The second classsifier that was implemented was the Naive Bayes
+classifier, which assigns the class based on the result of Bayes'
+Theorem \begin{equation}
+    P(C_{i}|X) = \frac{P(X|C_{i})P(C_{i})}{P(X)}
+\end{equation} Where \(P(C_{i}|X)\) is the probability a sample \(X\)
+belongs to class \(C_{i}\). The algorithm is straightforward. For each
+of the \(m\) classes, we calculate the probability that the given input
+belongs in that class and choose the class that maximizes
+\(P(C_{i}|X)\).
+
+Since \(P(X)\) is a constant for all classes, we only consider the top
+part of the fraction. The posterior probability \(P(X|C_{i})\) is
+estimated as a random normal variable with mean \(\mu_{C_{i}}\) equal to
+the proportion of items belonging to \(C_{i} \in D\) and likewise
+\(\sigma_{C_{i}}\) the standard deviation of all items belonging to the
+class. Finally, \(P(C_{i})\) is obtained from \(|C_{i}|/|D|\). The class
+which maximizes \(P(C_{i}|X)\) is the class we assign to the input.
+
+\hypertarget{neural-network}{%
+\subsection{Neural Network}\label{neural-network}}
+
+Neural Networks have become increasingly popular in recent years. Their
+ability to learn any arbitrary linearly separable data made it an
+excellent candidiate for this assignment. The neural network used in
+this assignment is a simple feedforward neural network, where each
+neuron in layer \(l\) takes in the outputs of layer \(l-1\), multiplies
+it by a weight and adds a bias, then runs it through an activation
+function. In the final output layer, the value with the highest
+activation is the final class assignment.
+
+Neural networks presented the most challenging model due to my own
+personal inexperience with them: tuning the hyperparameters, choosing
+the amount of hidden layers and neurons in those hidden layers,
+etc\ldots{} is a technique where I don't have much experience. However,
+I attempted to design a simple network with only one hidden layer.
+
+The input layer to our model has the same amount of neurons as features
+in our dataset. The hidden layer in our network also has the same amount
+of neurons, one for each attribute in the dataset. At the output layer,
+there is one neuron per class label.
+
+\hypertarget{results}{%
+\subsection{Results}\label{results}}
+
+As mentioned, two datasets of different attribute counts were used to
+test our models. The first test, the iris dataset, contains 4 attribute
+columns and 150 samples. The second dataset contains 427 training
+samples each with 30 categories. Following are the accuracy results for
+teh models on the corresponding datasets. For reference, the
+\passthrough{\lstinline!sklearn!} implementation of Decision Trees and
+Naive Bayes were also considered.
+
+\begin{longtable}[]{@{}lcccc@{}}
+\toprule
+& DT (sklearn) & DT (ours) & Naive Bayes (sklearn) & Naive Bayes
+(ours) \\
+\midrule
+\endhead
+iris dataset & 0.932 & 0.922 & 0.922 & 0.956 \\
+custom dataset & 0.558 & 0.597 & 0.582 & 0.655 \\
+\bottomrule
+\end{longtable}
+
+The neural network trained for 100 epochs, with batch size of 32 and
+learning rate of 0.25. The optimizer used was Stochastic Gradient
+Descent. The neural network accuracy is as follows
+
+\begin{longtable}[]{@{}lr@{}}
+\toprule
+& 3-Layer Neural Network \\
+\midrule
+\endhead
+iris dataset & 88.6 \\
+custom dataset & 61.3 \\
+\bottomrule
+\end{longtable}
+
+From the first table, it can be seen that the increase in attributes has
+a large effect on our model's accuracy. There are more clear separations
+between the items in the iris dataset, which is why the accuracy remains
+higher both on the sklearn model as well as our own. Wihthout pruning or
+without setting a maximum tree height, the decision tree can also
+overfit on the training data, which would give a larger difference on
+the custom dataset.
+
+The Naive Bayes classifier performed about as well as our Decision Tree
+and \passthrough{\lstinline!sklearn!}'s. Even though this is a simpler
+classifier, it can still achieve good results.
+
+For the neural network, although a small network managed to achieve
+relatively good performance on the iris dataset, I believe that
+underfitting of the data prevented the model from achieving better
+performance on the custom dataset. In classification problems we need to
+ensure that we have enough variables to model the relationships in the
+dataset. However, with the small model used here it might not have been
+enough. In a future implementation, more consideration would be given to
+the hyperparameters and structure.
+
+\hypertarget{conclusion}{%
+\subsection{Conclusion}\label{conclusion}}
+
+This assignment attempted to gain an understanding into different
+classification methods and their peformance, as well as the relation of
+the real and observed data. These models rely on the data we use to
+train them: the attribute we use in the internal nodes of a Deicision
+Tree, or the weight of a neuron in a neural network all depend on the
+training data. If the training data is not a good representation of the
+testing data, the accuracy will not be as high.
+
+The three models selected were tested with two datasets to measure the
+difference between accuracy in datasets with larger attributes. It was
+observed that the accuracy went down as the number of attributes went up
+in our dataset.
+
+There are areas of data science/machine learning looking into looking at
+the information stored in neural networks, for example, knowledge
+distillation in neural networks. For complex models such as neural
+networks, it is worthwhile to understand what exactly is happening
+``under the hood''. In the future, further research could let us have a
+clearer understanding of how these networks make decisions. Regardless,
+the algorithms we have for parsing labeled data is impressive already,
+and represents the long way people have come from having no way of
+analyzing labeled data.
+
+\end{document}
