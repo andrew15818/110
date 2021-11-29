@@ -1,21 +1,17 @@
 # Data Mining Homework 2
-The purpose of this homework assignment is to understand what classification systems do 
-and the difference between real behavior of classfication model and observed data.
+The main purpose of this assignment was to evaluate different classification models and 
+their performance.
+Then, we analyzed how the amounts of features in our data affected model's performance.
 
-This is done by creating a classification model that observes that difference.
+The relevant python files are `main.py` which reads the input data and calls the other models,
+`decisiontree.py`, `naivebayes.py`, and `model.py`.
 
-# General Procedure
-We need to design a set of rules that can classify the data points.
-It should have:
-	- k features
-	- 'absolutely right' data which we can use to generate our positive/negative data
+The main options for `main.py` are:
+- `-f --file`: the file used for training and testing.
+- `-a --algorithm`: either `decisiontree`, `neural`, or `naivebayes`.
 
-We need a minimum of a decision tree, but we can add our other model (NN?)
-
-Tentative plan: 
-1. Decision Tree
-2. Bayes Classifier
-3. Nearest Neighbors
-4. NN
-5. Support Vector Machines?
+## Data
+The data files used here are in `.csv` format, with the attribute 
+names at the first row of the file.
+The last column is the class label.
 
