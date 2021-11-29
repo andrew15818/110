@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 from decisiontree import DecisionTree 
 from naivebayes import NaiveBayes
-from model import NeuralClassifier, train_model
+from model import NeuralClassifier, train_model, test_model
 
 
 def get_args():
@@ -85,6 +85,9 @@ def main():
                 test_size=0.2)
     #print(y.iloc[:,:-1])
     algo = run(args.algorithm, X)
+
+    if args.algorithm == 'neural':
+        test_model(algo, y)
     """
     ours = algo.run(y)
     sklearn_model = compare(args.algorithm, X)

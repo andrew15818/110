@@ -4,14 +4,19 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import matplotlib.pyplot as plt
 
 from collections import OrderedDict
 from torch.utils.data import Dataset, DataLoader
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
 
 # Create a Dataset class so we can create our own DataLoader
 class customDataset(Dataset):
     def __init__(self, data):
         tmp = data.values[:,:-1].astype(np.float32)
+        scaler = StandardScaler()
+        tmp = scaler.fit_transform(tmp)
         self.data = torch.tensor(tmp)       
         self.labels = data.iloc[:,-1]
         self.label_dict = None
@@ -59,19 +64,18 @@ class NeuralClassifier(nn.Module):
         x = self.linear1(data)        
         x = F.relu(x)
         x = F.relu(self.linear2(x))
-        x = F.softmax(self.linear3(x))
+        x = F.softmax(self.linear3(x), dim=1)
         
         return x 
     def set_path(self, path):
         self.path = path
        
 
-# TODO: How do we better adjust the hyperparams?
-def train_model(data, dims:int, class_num:int) -> NeuralClassifier:
+def train_model(data, dims:int, class_num:int, validation=None) -> NeuralClassifier:
     # Hyperparameters
-    epochs = 32
-    batch_size = 16# Smaller for smaller sets?
-    learning_rate = 0.01
+    epochs = 100# or 40
+    batch_size = 32# Smaller for smaller sets?
+    learning_rate = 0.25# or .05
     
     # Model and training data
     model = NeuralClassifier(dims, class_num)
@@ -86,22 +90,24 @@ def train_model(data, dims:int, class_num:int) -> NeuralClassifier:
     losses = []
     counter = []
     for epoch in range(epochs):
+        batch_loss = 0
         for i, data in enumerate(dataloader, 0):
             x_train, y_train = data
-            
             # Clear the gradient from previous run 
             optimizer.zero_grad()
             outputs = model(x_train)
-            loss = criterion(outputs, y_train)
+            loss = criterion(outputs, y_train.long())
             loss.backward()
             optimizer.step()
-            losses.append(loss.item())
+            batch_loss += loss.item()
+
+        losses.append(batch_loss / len(dataloader))
     print('Finished training')
     model.set_path('./checkpoints/model.pth')
     torch.save(model.state_dict(), model.path)
+    plot_loss(losses)
     return model
 
-#TODO: Test model
 def test_model(model:NeuralClassifier, testdata:pd.DataFrame):
     # Custom dataloader for our dataset
     dataset = customDataset(testdata)
@@ -115,9 +121,15 @@ def test_model(model:NeuralClassifier, testdata:pd.DataFrame):
             attrs, ground_truth = data
             guess = model(attrs)
             _, predicted = torch.max(guess.data, 1)
-            print(ground_truth , predicted)
 
             total += ground_truth.size(0)
             correct += (predicted == ground_truth).sum().item()
-    print(f'Total Accuracy: {100 * correct / total}')
+    print(f'Total Accuracy: {correct / total}')
 
+
+# Plot the loss for each epoch
+def plot_loss(losses):
+    fig, ax = plt.subplots()
+    ax.plot(range(len(losses)), losses)
+    plt.show()
+    pass
