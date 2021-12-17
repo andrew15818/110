@@ -80,4 +80,104 @@ FP is faster than a-priori and is scalable.
 Instead of having $D$ presented as a list of transactions, we can present it as the id of the transaction and the places where it appears
 in our dataset.
 
+# Clustering
+This is the ch6 slides from moodle
 
+**Clustering** refers to grouping items togethter according to their 
+labels. 
+When the problem is supervised, we know the labels and the number of them,
+so we can infer the label of each item this way.
+With unsupervised methods we need to learn the grouping of similar 
+and dissimilar items by ourselves.
+
+A good cluster is one in which the intra-cluster similarity is high 
+and the inter-cluster similarity is low.
+Some of the things we should consider are dealing with non-numerical data,
+requiring little domain knowledge to use such data, high dimensionality,
+scalability, etc...
+We also need some **similarity measure** to measure how similar two objects
+are.
+
+Clustering algorithms can be sensitive to **outliers**, a couple values
+that greatly differ from the average of the cluster.
+These values can drag our entire average down.
+We define the cluster around some **cluster center**, so that each point
+is closer to one cluster's center than closer to the center of any other
+cluster.
+Another definition for cluster is using the nearest neighbor and how 
+how that point belongs to the same cluster as the other point.
+Another type of cluster groups items in high-density areas together
+and is separated from other clusters by areas of lower density.
+This type of clustering can help when the data is irregular or 
+intertwined.
+
+## Partitioning based algorithms
+Given a database $D$ of length $n$ and $k$ number of clusters, find the 
+partition of the database items that maximizes the partition criterion.
+This would require us to go through all the different partitions and evaluate 
+them individually.
+
+Some of the heuristics include $k$-means, or using the center of each 
+cluster, or the $k$-mediods, where each cluster is represented by one 
+item from the cluster.
+
+**K-means** clustering tries to find $k$ clusters by first calculating 
+the centroid of each partition. 
+Then we relocate each object in the database to the closest item.
+The centroids are often initialized randomly.
+However, the initial values of the centroids play a large role in how the 
+algorithm is going to split the dataset.
+K-means is sensible to outliers and sensitive to items of differing sizes.
+K-means is also sensitive to clusters that are not perfect spheres.
+
+Instead of using the means of each cluster, which can be sensitive to 
+outliers, we can instead use the **mediods**, or the most centrally 
+located point.
+PAM does not scale well to large datasets, though :(.
+If we take multiple samples from the dataset, we can deal with larger
+datasets instead, but the effieciency would then depend on the sample
+size, and we would require a large enough sample to be representative of the 
+entire dataset.
+
+## Hierarchical Clustering
+With this type of clustering we can represent clusters as a hierarhical
+tree, and every time we have a new split for a new cluster
+we update the tree.
+We can represent any number of clusters this way depending of when we stop
+the tree-building.
+
+Using the **agglomerative** approach, we start with each point as its own 
+cluster, and we continously merge the two closest clusters until only
+one cluster remains. The **divisive** approach is the reverse: start with 
+only one cluster, and split into two clusters until each cluster is in one 
+point or we have $k$ clusters. How would we know the best cluster split though?
+We would use the **proximity matrix** to know the distance b/w two points.
+Each time we merge the cluster we would have to merge some entries in the 
+matrix.
+
+Defining the **inter-cluster** similarity can be challenging. We can use
+either the min, max, group average, centroid distance, or some other methods.
+Some of these work better with datasets of different sizes but are susc.
+to outliers and vice versa.
+**Ward's method** uses the sqaured error if two clusters were to be merged.
+However, this is biased towards globular clusters.
+
+With hierarchical clusters, we don't optimize a similarity metric directly, 
+and the merging/splitting cannot be undone once we do it.
+
+Other approaches involve building a **minimum spanning tree**, where for
+a pair of points $(p, q)$ with $p$ in the tree and $q$ outside, find the 
+closest such pair of points and add $q$ to the tree.
+To build the clusters, we can split the $k$ farthest points, 
+which indicate the least similarity.
+
+## DBSCAN
+This algorithm is a density-based algorithm.
+The **density** of a point is the number of other points within some
+specified radius.
+If there are more than some predefined number of points within its radius,
+this point is a **core point**.
+If the point is not a core point but has a core point as one of its neighbors,
+the point is a **border point**.
+Otherwise, it is a **noise point**.
+DBSCAN does not work well when the points are of varying density.

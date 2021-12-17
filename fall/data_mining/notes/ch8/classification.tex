@@ -1,0 +1,571 @@
+%%
+% Copyright (c) 2017 - 2020, Pascal Wagler;
+% Copyright (c) 2014 - 2020, John MacFarlane
+%
+% All rights reserved.
+%
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions
+% are met:
+%
+% - Redistributions of source code must retain the above copyright
+% notice, this list of conditions and the following disclaimer.
+%
+% - Redistributions in binary form must reproduce the above copyright
+% notice, this list of conditions and the following disclaimer in the
+% documentation and/or other materials provided with the distribution.
+%
+% - Neither the name of John MacFarlane nor the names of other
+% contributors may be used to endorse or promote products derived
+% from this software without specific prior written permission.
+%
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+% "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+% LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+% FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+% COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+% INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+% BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+% LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+% CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+% LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+% ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+% POSSIBILITY OF SUCH DAMAGE.
+%%
+
+%%
+% This is the Eisvogel pandoc LaTeX template.
+%
+% For usage information and examples visit the official GitHub page:
+% https://github.com/Wandmalfarbe/pandoc-latex-template
+%%
+
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames*,x11names*,table}{xcolor}
+%
+\documentclass[
+  paper=a4,
+,captions=tableheading
+]{scrartcl}
+\usepackage{lmodern}
+\usepackage{setspace}
+\setstretch{1.2}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\definecolor{default-linkcolor}{HTML}{A50000}
+\definecolor{default-filecolor}{HTML}{A50000}
+\definecolor{default-citecolor}{HTML}{4077C0}
+\definecolor{default-urlcolor}{HTML}{4077C0}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  hidelinks,
+  breaklinks=true,
+  pdfcreator={LaTeX via pandoc with the Eisvogel template}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=2.5cm,includehead=true,includefoot=true,centering,]{geometry}
+\usepackage{listings}
+\newcommand{\passthrough}[1]{#1}
+\lstset{defaultdialect=[5.3]Lua}
+\lstset{defaultdialect=[x86masm]Assembler}
+% add backlinks to footnote references, cf. https://tex.stackexchange.com/questions/302266/make-footnote-clickable-both-ways
+\usepackage{footnotebackref}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+% Make use of float-package and set default placement for figures to H.
+% The option H means 'PUT IT HERE' (as  opposed to the standard h option which means 'You may put it here if you like').
+\usepackage{float}
+\floatplacement{figure}{H}
+
+
+\date{}
+
+
+
+%%
+%% added
+%%
+
+%
+% language specification
+%
+% If no language is specified, use English as the default main document language.
+%
+
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[shorthands=off,main=english]{babel}
+\else
+    % Workaround for bug in Polyglossia that breaks `\familydefault` when `\setmainlanguage` is used.
+  % See https://github.com/Wandmalfarbe/pandoc-latex-template/issues/8
+  % See https://github.com/reutenauer/polyglossia/issues/186
+  % See https://github.com/reutenauer/polyglossia/issues/127
+  \renewcommand*\familydefault{\sfdefault}
+    % load polyglossia as late as possible as it *could* call bidi if RTL lang (e.g. Hebrew or Arabic)
+  \usepackage{polyglossia}
+  \setmainlanguage[]{english}
+\fi
+
+
+
+%
+% for the background color of the title page
+%
+
+%
+% break urls
+%
+\PassOptionsToPackage{hyphens}{url}
+
+%
+% When using babel or polyglossia with biblatex, loading csquotes is recommended
+% to ensure that quoted texts are typeset according to the rules of your main language.
+%
+\usepackage{csquotes}
+
+%
+% captions
+%
+\definecolor{caption-color}{HTML}{777777}
+\usepackage[font={stretch=1.2}, textfont={color=caption-color}, position=top, skip=4mm, labelfont=bf, singlelinecheck=false, justification=raggedright]{caption}
+\setcapindent{0em}
+
+%
+% blockquote
+%
+\definecolor{blockquote-border}{RGB}{221,221,221}
+\definecolor{blockquote-text}{RGB}{119,119,119}
+\usepackage{mdframed}
+\newmdenv[rightline=false,bottomline=false,topline=false,linewidth=3pt,linecolor=blockquote-border,skipabove=\parskip]{customblockquote}
+\renewenvironment{quote}{\begin{customblockquote}\list{}{\rightmargin=0em\leftmargin=0em}%
+\item\relax\color{blockquote-text}\ignorespaces}{\unskip\unskip\endlist\end{customblockquote}}
+
+%
+% Source Sans Pro as the de­fault font fam­ily
+% Source Code Pro for monospace text
+%
+% 'default' option sets the default
+% font family to Source Sans Pro, not \sfdefault.
+%
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+  \else % if not pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+
+  % XeLaTeX specific adjustments for straight quotes: https://tex.stackexchange.com/a/354887
+  % This issue is already fixed (see https://github.com/silkeh/latex-sourcecodepro/pull/5) but the
+  % fix is still unreleased.
+  % TODO: Remove this workaround when the new version of sourcecodepro is released on CTAN.
+  \ifxetex
+    \makeatletter
+    \defaultfontfeatures[\ttfamily]
+      { Numbers   = \sourcecodepro@figurestyle,
+        Scale     = \SourceCodePro@scale,
+        Extension = .otf }
+    \setmonofont
+      [ UprightFont    = *-\sourcecodepro@regstyle,
+        ItalicFont     = *-\sourcecodepro@regstyle It,
+        BoldFont       = *-\sourcecodepro@boldstyle,
+        BoldItalicFont = *-\sourcecodepro@boldstyle It ]
+      {SourceCodePro}
+    \makeatother
+  \fi
+  \fi
+
+%
+% heading color
+%
+\definecolor{heading-color}{RGB}{40,40,40}
+\addtokomafont{section}{\color{heading-color}}
+% When using the classes report, scrreprt, book,
+% scrbook or memoir, uncomment the following line.
+%\addtokomafont{chapter}{\color{heading-color}}
+
+%
+% variables for title and author
+%
+\usepackage{titling}
+\title{}
+\author{}
+
+%
+% tables
+%
+
+%
+% remove paragraph indention
+%
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+
+%
+%
+% Listings
+%
+%
+
+
+%
+% general listing colors
+%
+\definecolor{listing-background}{HTML}{F7F7F7}
+\definecolor{listing-rule}{HTML}{B3B2B3}
+\definecolor{listing-numbers}{HTML}{B3B2B3}
+\definecolor{listing-text-color}{HTML}{000000}
+\definecolor{listing-keyword}{HTML}{435489}
+\definecolor{listing-keyword-2}{HTML}{1284CA} % additional keywords
+\definecolor{listing-keyword-3}{HTML}{9137CB} % additional keywords
+\definecolor{listing-identifier}{HTML}{435489}
+\definecolor{listing-string}{HTML}{00999A}
+\definecolor{listing-comment}{HTML}{8E8E8E}
+
+\lstdefinestyle{eisvogel_listing_style}{
+  language         = java,
+  numbers          = left,
+  xleftmargin      = 2.7em,
+  framexleftmargin = 2.5em,
+  backgroundcolor  = \color{listing-background},
+  basicstyle       = \color{listing-text-color}\linespread{1.0}\small\ttfamily{},
+  breaklines       = true,
+  frame            = single,
+  framesep         = 0.19em,
+  rulecolor        = \color{listing-rule},
+  frameround       = ffff,
+  tabsize          = 4,
+  numberstyle      = \color{listing-numbers},
+  aboveskip        = 1.0em,
+  belowskip        = 0.1em,
+  abovecaptionskip = 0em,
+  belowcaptionskip = 1.0em,
+  keywordstyle     = {\color{listing-keyword}\bfseries},
+  keywordstyle     = {[2]\color{listing-keyword-2}\bfseries},
+  keywordstyle     = {[3]\color{listing-keyword-3}\bfseries\itshape},
+  sensitive        = true,
+  identifierstyle  = \color{listing-identifier},
+  commentstyle     = \color{listing-comment},
+  stringstyle      = \color{listing-string},
+  showstringspaces = false,
+  escapeinside     = {/*@}{@*/}, % Allow LaTeX inside these special comments
+  literate         =
+  {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+  {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+  {à}{{\`a}}1 {è}{{\'e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+  {À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+  {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+  {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+  {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+  {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+  {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1 {ß}{{\ss}}1
+  {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+  {€}{{\EUR}}1 {£}{{\pounds}}1 {«}{{\guillemotleft}}1
+  {»}{{\guillemotright}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1
+  {…}{{\ldots}}1 {≥}{{>=}}1 {≤}{{<=}}1 {„}{{\glqq}}1 {“}{{\grqq}}1
+  {”}{{''}}1
+}
+\lstset{style=eisvogel_listing_style}
+
+%
+% Java (Java SE 12, 2019-06-22)
+%
+\lstdefinelanguage{Java}{
+  morekeywords={
+    % normal keywords (without data types)
+    abstract,assert,break,case,catch,class,continue,default,
+    do,else,enum,exports,extends,final,finally,for,if,implements,
+    import,instanceof,interface,module,native,new,package,private,
+    protected,public,requires,return,static,strictfp,super,switch,
+    synchronized,this,throw,throws,transient,try,volatile,while,
+    % var is an identifier
+    var
+  },
+  morekeywords={[2] % data types
+    % primitive data types
+    boolean,byte,char,double,float,int,long,short,
+    % String
+    String,
+    % primitive wrapper types
+    Boolean,Byte,Character,Double,Float,Integer,Long,Short
+    % number types
+    Number,AtomicInteger,AtomicLong,BigDecimal,BigInteger,DoubleAccumulator,DoubleAdder,LongAccumulator,LongAdder,Short,
+    % other
+    Object,Void,void
+  },
+  morekeywords={[3] % literals
+    % reserved words for literal values
+    null,true,false,
+  },
+  sensitive,
+  morecomment  = [l]//,
+  morecomment  = [s]{/*}{*/},
+  morecomment  = [s]{/**}{*/},
+  morestring   = [b]",
+  morestring   = [b]',
+}
+
+\lstdefinelanguage{XML}{
+  morestring      = [b]",
+  moredelim       = [s][\bfseries\color{listing-keyword}]{<}{\ },
+  moredelim       = [s][\bfseries\color{listing-keyword}]{</}{>},
+  moredelim       = [l][\bfseries\color{listing-keyword}]{/>},
+  moredelim       = [l][\bfseries\color{listing-keyword}]{>},
+  morecomment     = [s]{<?}{?>},
+  morecomment     = [s]{<!--}{-->},
+  commentstyle    = \color{listing-comment},
+  stringstyle     = \color{listing-string},
+  identifierstyle = \color{listing-identifier}
+}
+
+%
+% header and footer
+%
+\usepackage{fancyhdr}
+
+\fancypagestyle{eisvogel-header-footer}{
+  \fancyhead{}
+  \fancyfoot{}
+  \lhead[]{}
+  \chead[]{}
+  \rhead[]{}
+  \lfoot[\thepage]{}
+  \cfoot[]{}
+  \rfoot[]{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+\pagestyle{eisvogel-header-footer}
+
+%%
+%% end added
+%%
+
+\begin{document}
+
+%%
+%% begin titlepage
+%%
+
+%%
+%% end titlepage
+%%
+
+
+
+\hypertarget{classification-basic-concepts}{%
+\section{Classification: Basic
+Concepts}\label{classification-basic-concepts}}
+
+Classification refers to determining which class a particular piece of
+data belongs to. We can also predict the numerical value of a function
+given its inputs, using a \textbf{numerical predictor}, which is the
+subject of study of \textbf{Regression Analysis}.
+
+We use a large number of example tuples, and take a look their attribute
+vector \(\mathbf{x}\) with \(n\) dimensions. During the learning phase,
+we produce a set of rules for classification, by looking at a relevant
+feature of the dataset at node \(t\), \(D_{t}\).
+
+When performing induction, we would test the values of the test input
+against the values of the nodes, and by checking the condition at each
+node we could eventually make a decision as to the class. DTs are
+popular since there is no requirement of prevoius domain knowledge.
+
+At each node, we use a method to select the best attribute according to
+the data in the class (e.g.~Gini coefficient, information gain). We also
+have to choose whether the tree is binary or has multiple children.
+
+If all the items in \(D_{t}\) belong to the same class, then we make a
+leaf node with the class label \(C\). Otherwise, we need to use the
+aforementioned node-splitting heuristic, to find the best attribute to
+perform a split on. Then we separate the nodes according to their values
+in that specific criterion.
+
+Recursively call the procedure on each \(D_{j}\) according to the
+\(j\)th data split. The recursive procedure ends when one condition is
+true:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  All the nodes in \(D_{t}\) belong to the same class, in which case we
+  label the leaf node with that class value.
+\item
+  There are no remaining attributes on which to perform the split. Here
+  the label would be the most common class in \(D\).
+\item
+  There are no more tuples in the branch. Here the label is the majority
+  class in \(D\).
+\end{enumerate}
+
+The computational complexity is \(O(n\times |D|\times log(D))\). What if
+we keep adding training data \(D\) as we gain more training examples? We
+could use incremental versions of this algorithm to avoid re-learning
+the tree.
+
+How do we chooe the best attribute to perform the split on? Since we
+have a map of the data attributes, we need the attribute that best
+splits the data. Based on the attribute measure for each attribute, we
+can select the best attribute to perform the split on. There are a
+couple of attribute meausures:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Information Gain}: Here we measure the attribute which
+  minimizes the information needed to classify the resulting tuples. It
+  measures the least ``randomness'' or ``impurity''. The expected
+  information needed to classify a tuple is \begin{equation}
+   Info(D) = -\sum_{i=1}^{m}p_{i}log_{2}(p_{i})
+  \end{equation} where \(p_{i}\) is the probability that a tuple belongs
+  to class \(C_{i}\). And \(p_{i}\) is really just the number of members
+  in class \(C_{i}\) in the dataset \(D\).
+\end{enumerate}
+
+We would also have to measure the amount of information that would still
+be needed to classify members in the dataset, i.e.~the amount of
+information we gain by splitting on attribute \(A\). The amount we would
+gain is \begin{equation}
+Info_{A}(D) = \sum_{j=1}^{v} \frac{|D_{j}|}{|D|}\times Info(D_{j})
+\end{equation} The information gain is then described as how much
+information we gain by branching on \(A\), \begin{equation}
+\mathit{Gain}(A) = \mathit{Info}(D) - \mathit{Info_{A}}(D)
+\end{equation}
+
+If one attribute is continous, how do we select the best point to split?
+One option is to first sort the attribute values in increasing order and
+use the midpoint between each pair of adjacent values as the possible
+split point, \(\frac{a_{i} + a_{i+1}}{2}\). Then we use the answer to
+calculate the information gain by splitting the datset on this value.
+
+\hypertarget{gain-ratio}{%
+\subsection{Gain Ratio}\label{gain-ratio}}
+
+The information gain statistic has a bias towards attributes where more
+tests are performed. If there is an ID field where each attribute value
+is unique, then every split on this attribute will be uniques, which
+means that IG isn't so useful a metric anymore. The gain ratio tries to
+normalize the data beforehand \begin{equation}
+\mathit{SplitInfo}_{A}(D) = -\sum_{j=1}^{v}\frac{|D_{j}|}{|D|} \times log_{2}(\frac{|D_{j}|}{|D|})
+\end{equation}
+
+Then the gain ratio is defined as \begin{equation}
+\mathit{GainRatio}(A) = \frac{\mathit{Gain}(A)}{\mathit{SplitInfo}_{A}(D)}
+\end{equation}
+
+\hypertarget{gini-index}{%
+\subsection{Gini Index}\label{gini-index}}
+
+The Gini index is a measure of the impurity of an environment.
+\begin{equation}
+\mathit{Gini}(D) = 1 - \sum_{i=1}^{m}p^{2}_{i}
+\end{equation}
+
+Then we want to maximize the difference between the Gini impurity of the
+original dataset and of the proposed split.
+
+\hypertarget{tree-pruning}{%
+\subsection{Tree pruning}\label{tree-pruning}}
+
+The tree pruning here refers to removing the least reliable nodes in our
+tree. This can make the inference process faster for a single node.
+
+Postpruning goes back to the original tree and removes entire subtrees
+that are not useful. All its children are removed and the node is
+replace with a leaf. The \textbf{cost-complexity} analysis tries to
+compare the misclassification rate for the regular node and the node if
+we were to apply a split.
+
+We would mvoe up from a node, and using a special set called the
+\textbf{pruning set}, we could measure the error rate in a node. If the
+regular error rate is less than the error if we applied the pruning, we
+go ahead an apply the pruning. However, we would need another
+\textbf{pruning set} which is both independent of any training and
+testing set we use.
+
+\textbf{Pessimistic pruning} foregos the pruning set and instead tries
+to balance the training set. Since the training set is biased by
+default, we would need to counter this by some factor \(\alpha\) to get
+an accurate reading.
+
+Two issues in decision trees are \textbf{repetition} and
+\textbf{replication}. The former occurs when a single attribute is
+checked various times along a path to the leaf node. The latter occurs
+when entire subtrees are repeated at different points in our tree.
+
+\hypertarget{memory-issues}{%
+\subsection{Memory Issues}\label{memory-issues}}
+
+Since some of the datsets might be too learge to fit in main memory, we
+can instead try a couple of alternatives. \textbf{RainForest} creates an
+AVC set (Attribute-Value, Classlabel) at each node Then the AVC set for
+each node should be able to fit in main memory?
+
+Another algorithm called BOAT, builds several smaller trees which all
+fit in main memory and then use that to build the large, main tree,
+although it might not be quite exactly the same. This turns out to be
+faster than RainForest by a good bit.
+
+\hypertarget{bayes-classification}{%
+\subsection{Bayes Classification}\label{bayes-classification}}
+
+This type of classifier is based on Bayes' Theorem, and we try to
+predict the class of an item based on its attributes, which are
+considered independent of each other. The form of the theorem is
+\begin{equation}
+P(H|\mathbf{X}) = \frac{P(\mathbf{X}|H)P(H)}{P(X)}
+\end{equation}
+
+\(P(H|\mathbf{X})\) refers to the \textbf{posterior proabability} of
+\(H\), since we take its probability after we make some measurement
+\(X\). Then \(P(X)\) is the prior probability of the event; how often it
+happens on its own. For a given class \(C_{i}\), the posterior
+probability \(P(\mathbf{X}|C_{i}\) is generally pretty expensive to
+compute, so we could use an approximation given all the featues are
+independent from each other. \begin{equation}
+P(\mathbf{X}|C_{i}) = \prod_{k=1}^{n}P(x_{k}|C_{i})
+\end{equation} or, the probability of a given input given that it
+belongs to \(C_{i}\).
+
+However, it depends on whether the value is continuous or categorical.
+If it is categorical, we would have to estimate the items belonging to
+class \(C_{i}\) that have the given feature. If the value is
+categorical, we would have to assume the values are normally distributed
+by \begin{equation}
+g(x,\mu,\sigma) = \frac{1}{\sqrt{2\pi\sigma}}e^{-\frac{(x-\mu)^{2}}{2\sigma^{2}}}
+\end{equation}
+
+\end{document}
