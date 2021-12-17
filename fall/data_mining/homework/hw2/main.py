@@ -88,7 +88,8 @@ def main():
 
     if args.algorithm == 'neural':
         test_model(algo, y)
-    """
+        return
+
     ours = algo.run(y)
     sklearn_model = compare(args.algorithm, X)
 
@@ -96,6 +97,5 @@ def main():
     preds = sklearn_model.predict(y.iloc[:,:-1])
     print(f'Sklearn accuracy: {(y.iloc[:,-1] == preds).sum() / y.shape[0]}')
     print(f'Ours: {(y.iloc[:,-1] == ours).sum() / y.shape[0]}')
-    """
 if __name__=='__main__':
     main()
