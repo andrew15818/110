@@ -9,7 +9,7 @@ The final report should include:
 4. Discussion (what you learned from this project and other comments).
 
 Some other questions for discussion ( def should do):
-- More limitations about link analysis of algorithms (scalability, etc...?0
+- More limitations about link analysis of algorithms (scalability, etc...?)
 - Do these algorithms really find the "important" webpages?
 - What are some practical issues (performance considerations) when using these algorithms on the real web?
 - What are the results for the actor/movie graph and what do they say?
