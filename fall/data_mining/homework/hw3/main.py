@@ -2,6 +2,10 @@ import numpy as np
 import argparse
 
 from graph import Graph
+from algos.hits import HITS
+from algos.pagerank import PageRank
+from algos.simrank import SimRank
+
 def parse_args() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage="$(prog) OPTIONS",
@@ -17,10 +21,27 @@ def parse_args() -> argparse.ArgumentParser:
         type=str, default='pagerank',
         help='Specify the algorithm used in link analysis.'
     )
+    parser.add_argument(
+        '-d', '--damping',
+        type=float, default=0.15,
+        help='Likelihood our graph algorithm stops at a given node.'
+    )
     return parser.parse_args()
+
+# Call the appropriate algorithm
+def run(args, graph:Graph):
+    args.algorithm = args.algorithm.lower()
+    algo = None
+    print(f'[INFO] Running {args.algorithm}')
+    if args.algorithm == 'hits':
+        algo = HITS()
+    algo.run(graph)
+
 
 def main():
     args = parse_args()
     graph = Graph(args.file)
+    run(args, graph)
+
 if __name__=='__main__':
     main()
