@@ -3,12 +3,14 @@ class Vertex:
         self.value = value
         self.parents = []
         self.children = []
+        self.authority, self.hub = 0, 0
 
-    def add_parent(self, vertex):
-        pass
+    # Store only the id of the parents and children
+    def add_parent(self, vertex_id:int):
+        self.parents.append(vertex_id)
 
-    def add_child(self, vertex): 
-        pass
+    def add_child(self, vertex_id:int): 
+        self.children.append(vertex_id)
 
 class Graph:
     def __init__(self, file:str):
@@ -16,39 +18,45 @@ class Graph:
         self.file = file
 
         self.build()
-        pass
+        print('Graph built.')
 
     def add_parent(self, child:int, parent:int):
         self.vertices[child].add_parent(parent)
-        pass
 
     def add_child(self, parent:int, child:int):
         self.vertices[parent].add_child(child)
-        pass
+    def get_nodes_children(self, node_id:int) -> list:
+        return self.vertices[node_id].children
+
+    def get_nodes_parents(self, node_id:int) -> list:
+        return self.vertices[node_id].parent
 
     def add_vertex(self, src:int):
         if src in self.vertices.keys():
             return
         self.vertices[src] = Vertex(src)
-        pass
 
     # Get the src and dest ids
     # Change this if file format changes
     def get_endpoints(self, line):
-        src, dst = line.split()
+        line = line.rstrip().split(',')
+        src, dst = line[0], line[1]
         return int(src), int(dst)
 
     def build(self):
         with open(self.file, 'r') as f:
             for line in f:
-                if line.startswith('#'):
-                    continue
                 src, dst = self.get_endpoints(line)
+                #print(f'Adding {src} -> {dst}')
                 self.add_vertex(src)
                 self.add_vertex(dst)
 
                 self.add_parent(dst, src)
                 self.add_child(src, dst)
+        self._print()
 
-
-
+    # Debug function
+    def _print(self):
+        for id, node in self.vertices.items():
+            print(f'[{id}], children: {node.children}\t \
+            parents: {node.parents}')
