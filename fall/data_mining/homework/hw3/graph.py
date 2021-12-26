@@ -3,7 +3,7 @@ class Vertex:
         self.value = value
         self.parents = []
         self.children = []
-        self.authority, self.hub = 0, 0
+        self.authority, self.hub = 1, 1
 
     # Store only the id of the parents and children
     def add_parent(self, vertex_id:int):
@@ -11,6 +11,16 @@ class Vertex:
 
     def add_child(self, vertex_id:int): 
         self.children.append(vertex_id)
+
+    def get_parents(self):
+        return self.parents
+
+    def get_children(self):
+        return self.children
+    def get_authority(self):
+        return self.authority
+    def get_hub(self):
+        return self.hub
 
 class Graph:
     def __init__(self, file:str):
@@ -25,16 +35,25 @@ class Graph:
 
     def add_child(self, parent:int, child:int):
         self.vertices[parent].add_child(child)
-    def get_nodes_children(self, node_id:int) -> list:
+    
+    def get_children(self, node_id:int) -> list:
         return self.vertices[node_id].children
+    def get(self, node_id:int):
+        return self.vertices[node_id]
 
-    def get_nodes_parents(self, node_id:int) -> list:
+    def get_parents(self, node_id:int) -> list:
         return self.vertices[node_id].parent
 
     def add_vertex(self, src:int):
         if src in self.vertices.keys():
             return
         self.vertices[src] = Vertex(src)
+        
+    def set_authority(self, node_id, auth):
+        self.vertices[node_id].authority = auth
+
+    def set_hub(self, node_id, hub):
+        self.vertices[node_id].hub = hub 
 
     # Get the src and dest ids
     # Change this if file format changes
