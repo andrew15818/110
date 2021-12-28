@@ -6,44 +6,54 @@ from graph import Graph
 class HITS:
     def __init__(self):
         pass
-    # Use the hubness of parents
-    def authority(self, node_id:int):
-        pass
 
-    # Use the auth of children 
-    def hubness(self, node_id:int):
-        pass
+    # Auth and hub can be calculated by just taking the 
+    # sum of the auth/hubs in the arrays whose indices are
+    # in parents and children, respectively
+    # Hopefully graphs always start with node id 1 :D
+    def update_auth(self, parents: list) -> float:
+        ret = sum(self.hubs[i-1] for i in parents)
+        return ret
 
-    # Get the top k pages
-    def get_root_set(self, k=3):
-        pass
+    def update_hub(self, children:list) -> float:
+        ret = sum(self.authorities[i-1] for i in children)
+        return ret
 
     def run(self, graph:Graph):
+        # Adjust for index
         self.authorities = np.ones(len(graph.vertices))
         self.hubs = np.ones(len(graph.vertices))
-        i = 0
-        while i < 2:
-            auth_norm, hub_norm = 0, 0
+        i = 1
+        threshold = 1
+        prev_auth, prev_hub = 1, 1
+        while True:
+            prev_auth, prev_hub = self.authorities.sum(), self.hubs.sum()
+            # Update the auth and hub for each node
             for id, vertex in graph.vertices.items():
-                new_auth, new_hub = 0, 0
-                
 
                 # Authority depends on the innodes' hubness
-                for parent in vertex.get_parents():
-                    parent = graph.get(parent)
-                    new_auth += parent.get_hub()
-                auth_norm += new_auth ** 2
+                node_auth = self.update_auth(vertex.get_parents())
+                node_hub = self.update_hub(vertex.get_children())
 
-                # Hub dependss on the auth of the children
-                for child in vertex.get_children():
-                    child = graph.get(child)
-                    new_hub += child.get_authority()
-                hub_norm += new_hub ** 2
+                self.authorities[id-1] = node_auth
+                self.hubs[id-1] = node_hub
 
-                auth_norm /= math.sqrt(auth_norm)
-                hub_norm /= math.sqrt(hub_norm)
+            self.authorities /= self.authorities.sum()
+            self.hubs /= self.hubs.sum()
 
-                graph.set_authority(node_id=id, auth=auth_norm)
-                graph.set_hub(node_id=id, hub=hub_norm)
-                print(f'[{id}] auth: {auth_norm} hub: {hub_norm}')
+            if ((prev_auth - self.authorities.sum()) +
+                (prev_hub  - self.hubs.sum())) < threshold:
+                break
+
+
             i += 1
+
+    # Print contents to stdout and filename
+    def output(self, out_dir:str):
+        try:
+            np.savetxt(out_dir+'/HITS_authority.txt', self.authorities)
+            np.savetxt(out_dir+'/HITS_hub.txt', self.hubs)
+        except FileNotFoundError:
+            print(f'[Error] Try making the {out_dir} directory first!')
+        print(f'Authority:\n{self.authorities}')
+        print(f'Hub:\n{self.hubs}')
