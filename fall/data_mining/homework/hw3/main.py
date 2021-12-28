@@ -26,6 +26,11 @@ def parse_args() -> argparse.ArgumentParser:
         type=float, default=0.15,
         help='Likelihood our graph algorithm stops at a given node.'
     )
+    parser.add_argument(
+        '--out_dir',
+        type=str, default='output',
+        help='Output directory where relevant algorithm data is stored.'
+    )
     return parser.parse_args()
 
 # Call the appropriate algorithm
@@ -36,6 +41,7 @@ def run(args, graph:Graph):
     if args.algorithm == 'hits':
         algo = HITS()
     algo.run(graph)
+    algo.output(args.out_dir)
 
 
 def main():
