@@ -1,9 +1,12 @@
+import numpy as np
+
 class Vertex:
     def __init__(self, value):
         self.value = value
         self.parents = []
         self.children = []
         self.authority, self.hub = 1, 1
+        self.adj = None
 
     # Store only the id of the parents and children
     def add_parent(self, vertex_id:int):
@@ -74,6 +77,19 @@ class Graph:
                 self.add_child(src, dst)
         self._print()
 
+    # Get the graph information as an adjacency matrix
+    def adjacency_matrix(self) -> np.array:
+        # Only calculate adjacency once
+        if self.adj:
+            return self.adj
+
+        N = len(self.vertices)
+        adj = np.zeros(shape=(N,N))
+        for idx, vertex in self.vertices.items():
+            for child in vertex.get_children():
+                adj[idx-1][child-1] = 1
+        self.adj = adj
+        return adj
     # Debug function
     def _print(self):
         for id, node in self.vertices.items():
