@@ -55,5 +55,6 @@ class HITS:
             np.savetxt(out_dir+'/HITS_hub.txt', self.hubs)
         except FileNotFoundError:
             print(f'[Error] Try making the {out_dir} directory first!')
+
         print(f'Authority:\n{self.authorities}')
         print(f'Hub:\n{self.hubs}')
