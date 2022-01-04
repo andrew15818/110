@@ -6,7 +6,6 @@ class Vertex:
         self.parents = []
         self.children = []
         self.authority, self.hub = 1, 1
-        self.adj = None
 
     # Store only the id of the parents and children
     def add_parent(self, vertex_id:int):
@@ -29,6 +28,7 @@ class Graph:
     def __init__(self, file:str):
         self.vertices = {}
         self.file = file
+        self.adj = None
 
         self.build()
         print('Graph built.')
