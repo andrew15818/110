@@ -40,6 +40,9 @@ def run(args, graph:Graph):
     print(f'[INFO] Running {args.algorithm}')
     if args.algorithm == 'hits':
         algo = HITS()
+    elif args.algorithm == 'pagerank':
+        algo = PageRank(damping=args.damping)
+
     algo.run(graph)
     algo.output(args.out_dir)
 
