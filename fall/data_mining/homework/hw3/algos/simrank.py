@@ -9,14 +9,14 @@ class SimRank:
         if n1.value == n2.value:
             return 1
 
-        elif len(n1.children) == 0 or len(n2.children) == 0:
+        elif len(n1.parents) == 0 or len(n2.parents) == 0:
             return 0
 
         psim = 0 # parent sim scores
         for p1 in n1.parents:
             for p2 in n2.parents:
                 psim += self.sim_scores[p1-1][p2-1]
-        return psim 
+        return (self.decay / (len(n1.parents) * len(n2.parents))) * psim
 
     def run(self, graph, iterations=10):
         nodes = graph.get_node_count()
