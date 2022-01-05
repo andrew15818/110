@@ -27,11 +27,17 @@ def parse_args() -> argparse.ArgumentParser:
         help='Likelihood our graph algorithm stops at a given node.'
     )
     parser.add_argument(
+        '-C', '--decay',
+        type=float, default=0.85,
+        help='Decay factor for the SimRank algorithm.'
+    )
+    parser.add_argument(
         '--out_dir',
         type=str, default='output',
         help='Output directory where relevant algorithm data is stored.'
     )
     return parser.parse_args()
+
 # Get the filename w/o file extension, path prefix
 def get_output_file(path:str)->str:
     # If file is in another directory
@@ -49,6 +55,8 @@ def run(args, graph:Graph):
         algo = HITS()
     elif args.algorithm == 'pagerank':
         algo = PageRank(damping=args.damping)
+    elif args.algorithm == 'simrank':
+        algo = SimRank(args.decay)
 
     algo.run(graph)
     outfile = get_output_file(args.file)
