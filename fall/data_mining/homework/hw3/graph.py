@@ -11,7 +11,7 @@ class Vertex:
     def add_parent(self, vertex_id:int):
         self.parents.append(vertex_id)
 
-    def add_child(self, vertex_id:int): 
+    def add_child(self, vertex_id:int):
         self.children.append(vertex_id)
 
     def get_parents(self):
@@ -41,6 +41,10 @@ class Graph:
     
     def get_children(self, node_id:int) -> list:
         return self.vertices[node_id].children
+
+    def get_node_count(self):
+        return len(self.vertices)
+
     def get(self, node_id:int):
         return self.vertices[node_id]
 
