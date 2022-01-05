@@ -32,6 +32,13 @@ def parse_args() -> argparse.ArgumentParser:
         help='Output directory where relevant algorithm data is stored.'
     )
     return parser.parse_args()
+# Get the filename w/o file extension, path prefix
+def get_output_file(path:str)->str:
+    # If file is in another directory
+    # otherwise will be just filename
+    filename = path.split('/')[-1]
+    # Remove the file extenstion
+    return filename.split('.')[0]
 
 # Call the appropriate algorithm
 def run(args, graph:Graph):
@@ -44,7 +51,8 @@ def run(args, graph:Graph):
         algo = PageRank(damping=args.damping)
 
     algo.run(graph)
-    algo.output(args.out_dir)
+    outfile = get_output_file(args.file)
+    algo.output(args.out_dir+'/'+outfile)
 
 
 def main():
