@@ -51,10 +51,10 @@ class HITS:
     # Print contents to stdout and filename
     def output(self, out_dir:str):
         try:
-            np.savetxt(out_dir+'/HITS_authority.txt', self.authorities)
-            np.savetxt(out_dir+'/HITS_hub.txt', self.hubs)
+            np.savetxt(out_dir+'_HITS_authority.txt', self.authorities)
+            np.savetxt(out_dir+'_HITS_hub.txt', self.hubs)
         except FileNotFoundError:
-            print(f'[Error] Try making the {out_dir} directory first!')
+            print(f'[Error] Make sure the output directory exists!')
 
         print(f'Authority:\n{self.authorities}')
         print(f'Hub:\n{self.hubs}')
