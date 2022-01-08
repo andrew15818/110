@@ -29,6 +29,7 @@ class Graph:
         self.vertices = {}
         self.file = file
         self.adj = None
+        self.ibm = True if 'ibm' in self.file else False
 
         self.build()
         print('Graph built.')
@@ -65,7 +66,13 @@ class Graph:
     # Get the src and dest ids
     # Change this if file format changes
     def get_endpoints(self, line):
-        line = line.rstrip().split(',')
+        line = line.rstrip()
+        if self.ibm:
+            line = line.split() 
+            src, dst = line[1], line[2]
+            return int(src), int(dst)
+
+        line = line.split(',')
         src, dst = line[0], line[1]
         return int(src), int(dst)
 
@@ -79,7 +86,7 @@ class Graph:
 
                 self.add_parent(dst, src)
                 self.add_child(src, dst)
-        self._print()
+        #self._print()
 
     # Get the graph information as an adjacency matrix
     def adjacency_matrix(self) -> np.array:
@@ -87,13 +94,14 @@ class Graph:
         if self.adj:
             return self.adj
 
-        N = len(self.vertices)
+        N = max(self.vertices)
         adj = np.zeros(shape=(N,N))
         for idx, vertex in self.vertices.items():
             for child in vertex.get_children():
                 adj[idx-1][child-1] = 1
         self.adj = adj
         return adj
+
     # Debug function
     def _print(self):
         for id, node in self.vertices.items():
