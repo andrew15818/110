@@ -5,6 +5,7 @@ from graph import Graph
 from algos.hits import HITS
 from algos.pagerank import PageRank
 from algos.simrank import SimRank
+ALGOS = ['hits', 'pagerank', 'simrank']
 
 def parse_args() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -18,7 +19,7 @@ def parse_args() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         '-a', '--algorithm',
-        type=str, default='pagerank',
+        type=str, default='all',
         help='Specify the algorithm used in link analysis.'
     )
     parser.add_argument(
@@ -46,11 +47,13 @@ def get_output_file(path:str)->str:
     # Remove the file extenstion
     return filename.split('.')[0]
 
+
 # Call the appropriate algorithm
 def run(args, graph:Graph):
     args.algorithm = args.algorithm.lower()
     algo = None
-    print(f'[INFO] Running {args.algorithm}')
+    print(f'\n[INFO] Running {args.algorithm}')
+
     if args.algorithm == 'hits':
         algo = HITS()
     elif args.algorithm == 'pagerank':
@@ -60,7 +63,9 @@ def run(args, graph:Graph):
 
     algo.run(graph)
     outfile = get_output_file(args.file)
-    algo.output(args.out_dir+'/'+outfile)
+    outpath = args.out_dir+'/'+outfile
+    algo.output(outpath)
+    print(f'\n[INFO] Output results to {outpath}')
 
 
 def main():
