@@ -13,7 +13,7 @@ class PageRank:
         # Use the children of each vertex for adj. matrix
         adj = graph.adjacency_matrix()
 
-        print(np.linalg.norm(adj,1 ))
+        #print(np.linalg.norm(adj,1 ))
         # Get transition matrix
         M = []
         for i, row in enumerate(adj):

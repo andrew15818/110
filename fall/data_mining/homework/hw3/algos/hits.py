@@ -21,8 +21,8 @@ class HITS:
 
     def run(self, graph:Graph):
         # Adjust for index
-        self.authorities = np.ones(len(graph.vertices))
-        self.hubs = np.ones(len(graph.vertices))
+        self.authorities = np.ones(max(graph.vertices))
+        self.hubs = np.ones(max(graph.vertices))
         i = 1
         threshold = 1
         prev_auth, prev_hub = 1, 1
