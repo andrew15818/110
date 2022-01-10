@@ -9,7 +9,7 @@ class PageRank:
     # TODO: Get rid of the iterations and 
     # figure out when algo converges
     def run(self, graph:Graph, iterations:int=3):
-        N = len(graph.vertices)
+        N = max(graph.vertices)
         # Use the children of each vertex for adj. matrix
         adj = graph.adjacency_matrix()
 
@@ -22,23 +22,28 @@ class PageRank:
 
         M = np.array(M)
         M = self.damping*M + (1-self.damping) / N
+
         z = np.ones(shape=(N, 1)) / N
-        x = np.ones(shape=(N, 1)) / N
+        x = np.random.rand(N, 1)
+        x /= np.linalg.norm(x, 1)
         x_prev = np.zeros(shape=(N, 1))
         i=0
+
         delta = 1
-        #TODO: Fix the convergence check, use threshold
-        while delta < .005: #not (x_prev == x).all():
+        while delta > .005: 
+           
             i+=1
             x_prev = x
             x = M @ x
-            
-            # Not sure about this bottom part, ppt says x1 + dt*z, can't find that anywher else
-            dt = np.linalg.norm(x) - np.linalg.norm(x_prev)
+
+            # Other resources use fixed number of iterations,
+            # These lines just evluate the difference in norms
+            # b/w this iteration and previous
+            dt = np.linalg.norm(x_prev) - np.linalg.norm(x)
             x += dt * z
             delta = np.linalg.norm(x_prev - x)
-            print(delta)
         
+        # Save for printing later
         self.x = x
     def output(self, out_path):
         try:
