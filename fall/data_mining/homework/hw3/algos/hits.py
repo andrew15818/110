@@ -43,6 +43,7 @@ class HITS:
 
             if ((prev_auth - self.authorities.sum()) +
                 (prev_hub  - self.hubs.sum())) < threshold:
+                print(f'Converged in {i} iterations.')
                 break
 
 

@@ -16,6 +16,7 @@ class SimRank:
         for p1 in n1.parents:
             for p2 in n2.parents:
                 psim += self.sim_scores[p1-1][p2-1]
+
         return (self.decay / (len(n1.parents) * len(n2.parents))) * psim
 
     def run(self, graph, iterations=10):
@@ -32,7 +33,6 @@ class SimRank:
                     self.sim_scores[n1-1,n2-1] = sim
                     # Get simrank score for two nodes
                     # Update matrix
-        # TODO: see if we can do it with matrix operations instead.
 
    
     def output(self, out_path:str):

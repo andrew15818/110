@@ -24,13 +24,13 @@ class PageRank:
         M = self.damping*M + (1-self.damping) / N
 
         z = np.ones(shape=(N, 1)) / N
-        x = np.random.rand(N, 1)
+        x = np.ones((N, 1))
         x /= np.linalg.norm(x, 1)
         x_prev = np.zeros(shape=(N, 1))
         i=0
 
         delta = 1
-        while delta > .005: 
+        while delta > .05: 
            
             i+=1
             x_prev = x
@@ -42,9 +42,11 @@ class PageRank:
             dt = np.linalg.norm(x_prev) - np.linalg.norm(x)
             x += dt * z
             delta = np.linalg.norm(x_prev - x)
-        
+            i += 1 
+        print(f'Converged in {i} iterations.')
         # Save for printing later
         self.x = x
+    
     def output(self, out_path):
         try:
             np.savetxt(out_path+'_PageRank.txt', self.x, fmt='%.4e', newline=' ', delimiter=', ')
