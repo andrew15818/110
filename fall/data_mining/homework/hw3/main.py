@@ -23,6 +23,11 @@ def parse_args() -> argparse.ArgumentParser:
         help='Specify the algorithm used in link analysis.'
     )
     parser.add_argument(
+        '--undirected',
+        type=bool, default=False,
+        help="Undirected graph. If True, will add an edge between src/dst as well."
+    )
+    parser.add_argument(
         '-d', '--damping',
         type=float, default=0.15,
         help='Likelihood our graph algorithm stops at a given node.'
@@ -34,7 +39,7 @@ def parse_args() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         '--out_dir',
-        type=str, default='output',
+        type=str, default='.',
         help='Output directory where relevant algorithm data is stored.'
     )
     return parser.parse_args()
@@ -70,7 +75,7 @@ def run(args, graph:Graph):
 
 def main():
     args = parse_args()
-    graph = Graph(args.file)
+    graph = Graph(args.file, args.undirected)
     run(args, graph)
 
 if __name__=='__main__':
