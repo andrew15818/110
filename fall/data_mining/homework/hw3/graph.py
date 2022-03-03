@@ -25,10 +25,11 @@ class Vertex:
         return self.hub
 
 class Graph:
-    def __init__(self, file:str):
+    def __init__(self, file:str, undirected=False):
         self.vertices = {}
         self.file = file
         self.adj = None
+        self.undirected = undirected
         self.ibm = True if 'ibm' in self.file else False
 
         self.build()
@@ -86,7 +87,10 @@ class Graph:
 
                 self.add_parent(dst, src)
                 self.add_child(src, dst)
-        #self._print()
+
+                if self.ibm and self.undirected:
+                    self.add_parent(src, dst)
+                    self.add_child(dst, src)
 
     # Get the graph information as an adjacency matrix
     def adjacency_matrix(self) -> np.array:
