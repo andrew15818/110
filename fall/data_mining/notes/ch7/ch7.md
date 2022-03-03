@@ -75,3 +75,8 @@ which can be represented as a transition matrix $M$.
 However, since a lot of the items are single nodes, then the rank does
 not get calculated from hhe parent;s rank, i.e. we cannot recurse to get the
 pageRank of the parents.
+If this is the case, we can modify $M$ so that it chooses a new page 
+at random.
+We can change $M$ with another matrix $E$ called the **escape**matrix
+such that it has a chance of *escaping* the node and choosing one at random
+with probability \frac{1}{n} .
