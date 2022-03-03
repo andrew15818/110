@@ -1,0 +1,60 @@
+\documentclass[11pt]{scrartcl}
+\input{template/structure.tex}
+\usepackage{xeCJK}
+\usepackage{amsmath}
+\usepackage{breqn}
+\setCJKmainfont{Noto Serif CJK TC}
+\title{ 
+	\normalfont\normalsize
+	\textsc{National Cheng Kung University}\\
+	\vspace{25pt}
+	\rule{\linewidth}{0.5pt}\\
+	\vspace{20pt}
+	{\huge Optimization Design Homework 1}\\
+	\vspace{12pt}
+	\rule{\linewidth}{2pt}\\
+	\vspace{12pt}
+}
+\author{\Large Andr\'es Ponce \and 彭思安 \and P76107116}
+\date{\normalsize\today}
+
+\begin{document}
+\maketitle
+\section{Find the stationary points for the following functions. 
+Also identify(for each stationary point), the local maximum, minimum,
+or neither (by using second order derivative or Hessian matrix.)}
+
+\subsection{$f(x) = x^{3}\exp(-x^2)$, for $-2<x<2$.}
+The stationary points are those where $f'(x) = 0$, so we first find
+the first derivative.
+By using the product rule,
+
+\begin{equation}
+\label{eq:1aFirstDer}
+f'(x) = 3x^{2}\exp(-x^{2}) -2x^{4}\exp(-x^{2}) = -x^2 \exp(-x^{2})(2x^4 - 3x^2)
+\end{equation}
+
+which is zero at $x=0$, and by solving $2x^4 - 3x^2$ we get the other roots $x=\pm\frac{\sqrt{3}}{\sqrt{2}}$.
+Theorem 2.2 gives the sufficient condition for a minimum or maximum point for
+single variables.
+We must find a point where $f^{m}(x^{*}) \neq 0$, so we find $f''(x)$.
+We again use the product rule on Equation~\ref{eq:1aFirstDer} and factor 
+the result to obtain
+
+\begin{equation}
+	\label{eq:1aSecondDer}
+	f''(x) = -x\exp(-x^{2})(4x^4 + 2x^2 -6)
+\end{equation}
+where $f''(\frac{\sqrt{3}}{\sqrt{2}}) < 0$ and $f''(-\frac{\sqrt{3}}{\sqrt{2}}) > 0$ However, $f''(0) = 0$,
+so we find the third derivative by using the same procedure
+\begin{equation}
+\label{eq:1aThirdDer}
+f'''(x) = -x\exp(-x^{2})(20x^3 + 6x + 8x^4 + 4x^2 -12) - 6\exp(-x^2)
+\end{equation}
+where $f'''(0)=6$, however since $n=3$, $0$ does not correspond to either
+a maximum nor minimum point.
+In the end, $-\frac{\sqrt{3}}{\sqrt{2}}$ is a minimum, $0$ is neither, and 
+$\frac{\sqrt{3}}{\sqrt{2}}$ is a maximum.
+
+\subsection{$f(x, y) = -x^2 -3y^2 + 12xy$}
+\end{document}
