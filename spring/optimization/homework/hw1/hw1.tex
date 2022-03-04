@@ -4,6 +4,7 @@
 \usepackage{amsmath}
 \usepackage{breqn}
 \setCJKmainfont{Noto Serif CJK TC}
+\newcommand{\vect}{\boldsymbol}
 \title{ 
 	\normalfont\normalsize
 	\textsc{National Cheng Kung University}\\
@@ -57,4 +58,54 @@ In the end, $-\frac{\sqrt{3}}{\sqrt{2}}$ is a minimum, $0$ is neither, and
 $\frac{\sqrt{3}}{\sqrt{2}}$ is a maximum.
 
 \subsection{$f(x, y) = -x^2 -3y^2 + 12xy$}
+For a multivariable equation, solving for $x$ and $y$ in the partial derivatives will give us
+the stationary points.
+\begin{equation}
+	\label{eq:1bxFirstDer}
+	\frac{\partial f}{\partial x} = -2x + 12y
+\end{equation}
+
+\begin{equation}
+	\label{eq:1byFirstDer}
+	\frac{\partial f}{\partial y} = -6y + 12x
+\end{equation}
+We first solve for $y$ in Equation~\ref{eq:1byFirstDer} and we get $y=2x$.
+Substituing for $y$ in Equation~\ref{eq:1bxFirstDer}, we get 
+$$-2x + 24x = 22x$$
+$$22x = 0$$
+which means $x=0$.
+Substituting again $x=0$ in Equation~\ref{eq:1byFirstDer} we get $-6y=0$ which means
+$y=0$.
+The stationary point for $f$ is $(0, 0)$.
+
+To determine the nature of the stationary points, we have to find the Hessian matrix,
+which involves finding the second order partial derivatives.
+\begin{equation}
+	\frac{\partial^{2} f}{\partial^{2} x}=-2\quad \frac{\partial^{2}f}{\partial^{2}y} = -6
+\end{equation}
+
+\begin{equation}
+	\frac{\partial^{2} f}{\partial y\partial x}=12\quad \frac{\partial^{2}f}{\partial x\partial y} = 12
+\end{equation}
+and build the Hessian matrix
+$$
+\boldsymbol{H} = 
+\begin{bmatrix}
+	-2 & 12\\
+	12 & -6
+\end{bmatrix}
+$$
+We can check for positive or negative definiteness by looking at the sign of $|\boldsymbol{H}_1|$ and $|\boldsymbol{H}_{2}|$.
+Here $|\boldsymbol{H}_1| = -2$ and $|\boldsymbol{H}_2| = (-6)(-2) -(12)(12) = -136$.
+Since both determinants are negative, we conclude $(0, 0)$ is neither a maximum nor minimum of $f$.
+
+\section{A quadratic function of $n$ variables has the following standard form
+		$$f(\vect{x}) = \vect{x}^{T}A\vect{x}/2 + \vect{b}^{T}\vect{x} +c$$, 
+		where $\vect{x}$ is the vector containing the $n$ variables.
+		Vector $\vect{b}$($n\times1$) and symmetric matrix $\vect{A}$($n\times n$) contain
+		constant coefficients.
+		For the following two quadratic functions $f_a (\vect{x})=x_{1}^{2}+2x_{1}x_{2}+3x_{2}^{2}$
+		and $f_b (\vect{x})=-x_{1}^{2}-x_{2}^{2}-x_{3}^{2}+2x_{1}x_{2}+6x_{1}x_{3}+4x_{1}-5x_{3}+7$, please
+}
+\subsection{Rewrite these functions in the standard quadratic function form.}
 \end{document}
