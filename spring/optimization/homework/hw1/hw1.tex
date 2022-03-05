@@ -108,4 +108,158 @@ Since both determinants are negative, we conclude $(0, 0)$ is neither a maximum 
 		and $f_b (\vect{x})=-x_{1}^{2}-x_{2}^{2}-x_{3}^{2}+2x_{1}x_{2}+6x_{1}x_{3}+4x_{1}-5x_{3}+7$, please
 }
 \subsection{Rewrite these functions in the standard quadratic function form.}
+In the standard quadratic form, the first product $\vect{x}^{T}\vect{A}\vect{x}$ produces the quadratic terms and
+the combinations $\vect{x}_i\vect{x}_j, i\neq j$.
+For $f_a$,
+on the diagonals of $\vect{A}$ we place the coefficients of the quadratic terms, in this case $2$ and $6$.
+Outside of the diagonals we place the half of the combinations $\vect{x}_1\vect{x}_2$, or $2$ in this case.
+The product $\vect{b}^{T}\vect{x}$ would take care of any single first order variables $x_{i}, i=1,2$; however
+$f_a$ does not have such factors.
+The final quadratic form for $f_a(\vect{x})$ is 
+\begin{equation}
+	f_a(\vect{x}) = 
+	\frac{1}{2}
+	\begin{bmatrix}
+		x_1 & x_2\\
+	\end{bmatrix}
+	\begin{bmatrix}
+			2 & 2 \\
+			2 & 6 
+	\end{bmatrix}
+	\begin{bmatrix}
+			x_1 \\
+			x_2
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+		0 & 0\\
+	\end{bmatrix}
+	\begin{bmatrix}
+		x_1\\
+		x_2
+	\end{bmatrix}
+	+ 0
+\end{equation}
+
+The process is similar for $f_b$.
+On the diagonals we place the coefficients of the second order components, and off the diagonals the 
+coefficients of $x_i x_j, i\neq j$.
+Next, $\vect{b}$ will contain the first order coefficients, here $4, 0, -5$ for $x_1, x_2, x_3$, respectively.
+The standard quadratic formula for $f_b(\vect{x})$ is
+\begin{equation}
+	f_b(\vect{x}) = 
+	\frac{1}{2}
+	\begin{bmatrix}
+			x_1 & x_2 & x_3\\
+	\end{bmatrix}
+	\begin{bmatrix}
+			-2 & 2 & 6\\
+			2 & -2 & 0\\
+			6 & 0 & -2
+	\end{bmatrix}
+	\begin{bmatrix}
+		x_1\\
+		x_2\\
+		x_3
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+		4 & 0 & -5\\
+	\end{bmatrix}
+	\begin{bmatrix}
+			x_1\\
+			x_2\\
+			x_3
+	\end{bmatrix}
+	+ 7
+\end{equation}
+\subsection{For these functions, show that $\nabla f = A\vect{x}+b$.}
+The gradient vector $\nabla f(\vect{x})$ is the vector containing the partial derivatives
+$\frac{\partial f}{\partial x_i}$.
+
+$$
+\nabla f_a(\vect{x}) =
+\begin{bmatrix}
+	2x_1 + 2x_2 \\
+	2x_1 + 6x_2
+\end{bmatrix}
+$$
+and the product $A\vect{x} + b$ is 
+$$
+\begin{bmatrix}
+	2 & 2\\
+	2 & 6
+\end{bmatrix}
+\begin{bmatrix}
+	x_1\\
+	x_2
+\end{bmatrix}
++
+\begin{bmatrix}
+	0\\
+	0
+\end{bmatrix}
+=
+\begin{bmatrix}
+	2x_1 + 2x_2\\
+	2x_1 + 6x_2
+\end{bmatrix}
+$$
+which shows that $\nabla f_a(\vect{x}) = A\vect{x} + \vect{b}$.
+
+For the second equation
+$$
+\nabla f_b (\vect{x}) = 
+\begin{bmatrix}
+	-2x_1 + 2x_2 + 6x_3 + 4\\
+	-2x_2 + 2x_1\\
+	-2x_3 + 6x_1 -5
+\end{bmatrix}
+$$
+and the product $A\vect{x}+\vect{b}$ is 
+$$
+\begin{bmatrix}
+	-2 & 2 & 6\\
+	2 & -2 & 0\\
+	6 & 0 & -2
+\end{bmatrix}
+\begin{bmatrix}
+	x_1\\
+	x_2\\
+	x_3
+\end{bmatrix}
++
+\begin{bmatrix}
+	4\\
+	0\\
+	-5
+\end{bmatrix}
+=
+\begin{bmatrix}
+	-2x_1 + 2x_2 + 6x_3 + 4\\
+	-2x_2 + 2x_1\\
+	-2x_3 + 6x_1 -5
+\end{bmatrix}
+$$
+
+which again shows $\nabla f_b(\vect{x}) = A\vect{x} + \vect{b}$.
+
+\subsection{For these functions, determine whether the matrix $A$ is positive definite,
+negative definite, or indefinite.}
+The textbook mentions two methods to check whether the matrix is positive definite, negative definite, or
+semi-definite.
+The first method involves checking the signs of the eigenvalues of $A$.
+The second involves checking the sign of the determinants of the submatrices $A_1, A_2,\dots,A_n$.
+For $f_a(\vect{x})$ this would be 
+\begin{equation*}
+|A_1| = |2|\quad\textrm{and}\quad |A_2| =
+\begin{vmatrix}
+2 & 2\\
+2 & 6\\
+\end{vmatrix}
+= (2)(6) - (2)(2) = 8
+\end{equation*}
+Since $|A_1|$ and $|A_2|$ are positive, $A$ is positive definite.
+
+
 \end{document}
