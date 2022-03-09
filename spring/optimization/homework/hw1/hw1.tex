@@ -275,77 +275,36 @@ To know whether a point is local minimum, perform function evalutation at 2
 nearby points (which satisfy constraints) to show that what you found is local
 minimum.}
 \subsection{$f(x,y) = 1/(xy)^2$, subject to $x^2 + y^2 = 1$}
-We can use constrained variation to find the maximum values of $x$ and $y$
-subject to the constraint.
-According to Equation 2.25 in the textbook, constrained variation takes the 
-form 
+Using the Lagrange multiplier method, we first define our Lagrange function $L$
+\[L(x, y, \lambda) = \frac{1}{(xy)^2} +\lambda(1-x^2-y^2)\]
+and find the partial derivatives of $x, y$, and $\lambda$.
 \begin{equation}
-	\label{eq:constrainedVar}
-	(\frac{\partial f}{\partial x}\frac{\partial g}{\partial y} - \frac{\partial f}{\partial y}\frac{\partial g}{\partial x})|_{(x^{*},y^{*})} = 0
+	\label{eq:dldx}
+	\frac{\partial L}{\partial x} = -2x^{-3}y^{-2} -2\lambda x
 \end{equation}
-We first find the four partial derivatives required
-\[\frac{\partial f}{\partial x} = -2x^{-3}y^{-2}\quad,\quad\frac{\partial f}{\partial y} = -2x^{-2}y^{-3}\]
-\[\frac{\partial g}{\partial x} = 2x\quad,\quad\frac{\partial g}{\partial y} = 2y\]
-and arrange the terms according to Equation~\ref{eq:constrainedVar}.
-\[(-2x^{-3}y^{-2})(2y) - (-2x^{-2}y^{-3})(2x) = 0\]
-Solving for $y$ first, we get
-\[ 4x^{-1}y^{-3} = 4x^{-3}y^{-1} \]
-\[ x^{-1}y^{-3} = x^{-3}y^{-1} \]
-\[ x^2 = y^2 \]
-\[ x^{*} = y^{*}\]
-And now, we can plug this result into our constraint.
-\[x^2 + (x)^2 = 1\]
-\[2x^2 = 1\]
-% Not sure about the pm
-\[x = \pm\frac{1}{\sqrt{2}}\]
-When we substitute for $x$, we also get $y=\pm\frac{1}{\sqrt{2}}$.
-Now, we have to show that these points indeed are minima by seeing to points 
-closeby.
-The four combinations of points all evaluate to $4$.
-Since $x = y = \pm\frac{1}{\sqrt{2}}$, we have four points to check.
-Below we compare points close to our suspected minima, one point on either side.
-\[
-\begin{tabular}{|c| c|}
-		\hline
-		$(\frac{1}{\sqrt{2}}, \frac{1}{\sqrt{2}})$ & $f(x,y)$\\
-		\hline
-		(0.607, 0.795) & 4.294\\
-		(0.77, 0.638) & 4.14\\
-		\hline
-\end{tabular}
-\quad
-\begin{tabular}{|c| c|}
-		\hline
-		$(-\frac{1}{\sqrt{2}}, \frac{1}{\sqrt{2}})$ & $f(x,y)$\\
-		\hline
-		(-0.607, 0.795) & 4.294\\
-		(-0.77, 0.638) & 4.14\\
-		\hline
-\end{tabular}
-\]
-
-\[
-\begin{tabular}{|c| c|}
-		\hline
-		$(\frac{1}{\sqrt{2}}, -\frac{1}{\sqrt{2}})$ & $f(x,y)$\\
-		\hline
-		(0.674, -0.739) & 4.03 \\
-		(0.74, -0.673) & 4.03\\
-		\hline
-\end{tabular}
-\quad
-\begin{tabular}{|c| c|}
-		\hline
-		$(-\frac{1}{\sqrt{2}}, -\frac{1}{\sqrt{2}})$ & $f(x,y)$\\
-		\hline
-		(-0.674, -0.739) & 4.03 \\
-		(-0.74, -0.673) & 4.03\\
-		\hline
-\end{tabular}
-\]
-As we can see, due to the quadratic nature of $f(x,y)$, all our
-points are local minima when compared to points in their 
-neighborhood.
+\begin{equation}
+	\label{eq:dldy}
+	\frac{\partial L}{\partial y} = -2x^{-2}y^{-3}-2\lambda y
+\end{equation}
+\begin{equation}
+	\label{eq:dldlambda}
+	\frac{\partial L }{\partial \lambda} = 1-x^2-y^2
+\end{equation}
+When we solve for $\lambda$ in Equation~\ref{eq:dldx}, we get 
+$\lambda = -x^{-4}y^{-2}$.
+Substituting for $\lambda$ in Equation~\ref{eq:dldy}, we get
+\[-2x^{-2}y^{-3}-2y(-x^{-4}y^{-2})\]
+which in the end gives us $y=x$.
+Plugging this result in Equation~\ref{eq:dldlambda}, we get the result
+\[x = y = \frac{1}{\sqrt{2}}\]
+which gives us a value of $4$ in $f$.
+To show $(\frac{1}{\sqrt{2}},\frac{1}{\sqrt{2}})$ is a local minimum, we 
+plot some nearby points.
+We chose the points $(0.69, 0.7238)$ and $(0.72, 0.694)$, which lie on either
+side of our proposed minimum, and evaluate
+\[f(0.69, 0.7238) = 4.009\]
+\[f(0.72, 0.694) = 4.005\]
+which supports our claim that $(\frac{1}{\sqrt{2}},\frac{1}{\sqrt{2}})$ is a minimum.
 \subsection{$f(x,y) = x^2 - 2x + y^2- 10y$, 
 subject to $-x^2 + y \leq 4$ and $-(x-2)^2 + y \leq 3$}
 \end{document}
