@@ -373,7 +373,7 @@ And also in Equation~\ref{eq:lambda2} we get $\lambda_2 = \frac{21}{128}$.
 Finally, for Equation~\ref{eq:ysolved}, we get $y=\frac{91}{128}$.
 The solution $x=\frac{4}{3}, y=\frac{73}{16}, \lambda_1 = \frac{91}{128},
 \lambda_2 = \frac{21}{128}$ meets the constraints.
-
+Since no $\lambda_i \neq0, i=1, 2$, all the constraints in this problem are active.
 To show that this point is a minimum, we again pick two close points and
 evaluate the function.
 
@@ -391,4 +391,66 @@ evaluate the function.
 
 \subsection{$f(x,y) = (x-1)^2 + y -2$, subject to $x - y -1 =0$ and 
 $x+y-2 \leq 0$}
+Here we have both equality and inequality constraints, so the Kuhn-Tucker conditions
+are 
+\[\nabla f + \sum_{j=1}^{m}\lambda_j\nabla g_j - \sum_{k=1}^{p}\beta_k\nabla h_k\]
+with the conditions 
+\[\lambda_j g_j = 0,\quad g_j \leq 0, \quad h_k =0\quad \lambda_j \geq 0\]
+Expanding the form above for $x$ and $y$, we get
+\begin{subequations}
+	\label{eq:3cKT}
+	\begin{equation}
+		2(x-1) + \lambda + \beta \label{eq:KTx}\\
+	\end{equation}
+	\begin{equation}
+		1 - \lambda - \beta 
+	\end{equation}
+\end{subequations}
+subject to the constraints
+\begin{equation}
+	\label{eq:3clambda}
+	\lambda(x+y-2) = 0
+\end{equation}
+\begin{equation}
+	\label{eq:3ch}
+	x-y-1=0
+\end{equation}
+For Equation~\ref{eq:3clambda}, we have $x+y-2=0$ or $\lambda=0$.
+\subsubsection{Case 1: $x+y-2=0$}
+We choose to solve for $x$, where $x = 2-y$.
+Substituting this result in Equation~\ref{eq:3ch}, we get
+\[(2-y)-y-1 = 0\]
+\[1-2y-0\]
+\[y=\frac{1}{2}\]
+Then Equation~\ref{eq:3clambda} gives us $x=\frac{3}{2}$.
+These points meet the constraints; however $f(\frac{3}{2}, \frac{1}{2})=-\frac{5}{4}$ and
+$f(1, 0) = -2$, which shows that the proposed point is not a minimum.
+
+\subsubsection{Case 2: $\lambda=0$}
+With Equation~\ref{eq:3ch}, we get $x=1+y$ which we substitute in Equation~\ref{eq:3cKT}.
+This gives us 
+\[2y + \beta = 0\]
+\[\beta= -2y\]
+which we substitute in Equation~\ref{eq:3cKT}b 
+\[1-0-(-2y)=0\]
+\[y=-\frac{1}{2}\]
+Now, we substitute this into the equality constraint Equation~\ref{eq:3ch}
+\[x - (-\frac{1}{2})-1=0\]
+\[x = \frac{1}{2}\]
+so $x =\frac{1}{2}$.
+To see if this point is a minimum, we compare two other points that match the constraints.
+
+\[
+\begin{tabular}{|c|c|}
+	\hline 
+	$f(1, 0)$ & -2 \\ [.2cm]
+	\hline 
+	$f(0.75, -0.25)$ & -2.1875 \\ [.2cm]
+	\hline 
+	$f(\frac{1}{2}, -\frac{1}{2})$ & -2.25 \\ [.2cm]
+	\hline
+\end{tabular}
+\]
+$(\frac{1}{2},-\frac{1}{2})$ meets our requirements, and the inequality constraint is
+inactive since $\lambda=0$. 
 \end{document}
