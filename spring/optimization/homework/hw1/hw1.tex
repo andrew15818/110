@@ -9,7 +9,7 @@
 	\normalfont\normalsize
 	\textsc{National Cheng Kung University}\\
 	\vspace{25pt}
-	\rule{\linewidth}{0.5pt}\\
+	\rule{\linewidth}{1pt}\\
 	\vspace{20pt}
 	{\huge Optimization Design Homework 1}\\
 	\vspace{12pt}
@@ -89,29 +89,29 @@ which involves finding the second order partial derivatives.
 \end{equation}
 and build the Hessian matrix
 $$
-\boldsymbol{H} = 
+H = 
 \begin{bmatrix}
 	-2 & 12\\
 	12 & -6
 \end{bmatrix}
 $$
-We can check for positive or negative definiteness by looking at the sign of $|\boldsymbol{H}_1|$ and $|\boldsymbol{H}_{2}|$.
-Here $|\boldsymbol{H}_1| = -2$ and $|\boldsymbol{H}_2| = (-6)(-2) -(12)(12) = -136$.
+We can check for positive or negative definiteness by looking at the sign of $|H_1|$ and $|H_{2}|$.
+Here $|H_1| = -2$ and $|H_2| = (-6)(-2) -(12)(12) = -136$.
 Since both determinants are negative, we conclude $(0, 0)$ is neither a maximum nor minimum of $f$.
 
 \section{A quadratic function of $n$ variables has the following standard form
 		$$f(\vect{x}) = \vect{x}^{T}A\vect{x}/2 + \vect{b}^{T}\vect{x} +c$$, 
 		where $\vect{x}$ is the vector containing the $n$ variables.
-		Vector $\vect{b}$($n\times1$) and symmetric matrix $\vect{A}$($n\times n$) contain
+		Vector $\vect{b}$($n\times1$) and symmetric matrix $A$($n\times n$) contain
 		constant coefficients.
 		For the following two quadratic functions $f_a (\vect{x})=x_{1}^{2}+2x_{1}x_{2}+3x_{2}^{2}$
 		and $f_b (\vect{x})=-x_{1}^{2}-x_{2}^{2}-x_{3}^{2}+2x_{1}x_{2}+6x_{1}x_{3}+4x_{1}-5x_{3}+7$, please
 }
 \subsection{Rewrite these functions in the standard quadratic function form.}
-In the standard quadratic form, the first product $\vect{x}^{T}\vect{A}\vect{x}$ produces the quadratic terms and
+In the standard quadratic form, the first product $\vect{x}^{T}A\vect{x}$ produces the quadratic terms and
 the combinations $\vect{x}_i\vect{x}_j, i\neq j$.
 For $f_a$,
-on the diagonals of $\vect{A}$ we place the coefficients of the quadratic terms, in this case $2$ and $6$.
+on the diagonals of $A$ we place the coefficients of the quadratic terms, in this case $2$ and $6$.
 Outside of the diagonals we place the half of the combinations $\vect{x}_1\vect{x}_2$, or $2$ in this case.
 The product $\vect{b}^{T}\vect{x}$ would take care of any single first order variables $x_{i}, i=1,2$; however
 $f_a$ does not have such factors.
@@ -373,7 +373,7 @@ And also in Equation~\ref{eq:lambda2} we get $\lambda_2 = \frac{21}{128}$.
 Finally, for Equation~\ref{eq:ysolved}, we get $y=\frac{91}{128}$.
 The solution $x=\frac{4}{3}, y=\frac{73}{16}, \lambda_1 = \frac{91}{128},
 \lambda_2 = \frac{21}{128}$ meets the constraints.
-Since no $\lambda_i \neq0, i=1, 2$, all the constraints in this problem are active.
+Since $\lambda_i \neq0, i=1, 2$, all the constraints in this problem are active.
 To show that this point is a minimum, we again pick two close points and
 evaluate the function.
 
