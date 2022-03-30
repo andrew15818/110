@@ -5,6 +5,9 @@ import math
 import random
 import numpy as np
 import pandas as pd
+import methods
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 parser = argparse.ArgumentParser(
@@ -38,7 +41,7 @@ def get_rows(filename:str, sep=None):
         return np.array(rows, dtype=np.float64)
 
 # Open file, return full dataset
-# Sep is because some files use tabs, others spaces
+# Some files are separated by spaces, others w/ tabs
 def get_dataset() -> np.array:
     tabs = ['power', 'energy'] # These files use tabs to separate values
     # All datasets are in their own dir
@@ -56,11 +59,15 @@ def remove_feature_values(features:np.array, ratio=0.3):
     for i in range(hideNum):
         hrow = random.randint(0, features.shape[0]) - 1
         hcol = random.randint(0, features.shape[1]) - 1
-        features[hrow][hcol] = math.nan
-        print(features[hrow])
+        features[hrow][hcol] = np.nan
     
     
-
+def preprocess(features, labels):
+    x_train, x_test, y_train, y_test = \
+            train_test_split(features, labels, test_size=0.3)
+    scaler = MinMaxScaler()
+    scaler.fit_transform(x_train, y_train) 
+    return x_train, x_test, y_train, y_test
 
 def main():
     missingRatios = [0.1, 0.3, 0.5, 0.7]
@@ -71,8 +78,13 @@ def main():
         features, labels  = copy[:,:-1], copy[:,-1]
 
         remove_feature_values(features)
-        print(features)
-        break
+        x_train, x_test, y_train, y_test = preprocess(features, labels)
+        imputed = methods.mean_imp(x_train)
+
+        # Train a linear regression model
+        model = LinearRegression()
+        model.fit(imputed, y_train)
+        break # debug
 
 if __name__=='__main__':
     main()
