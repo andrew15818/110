@@ -14,6 +14,15 @@ from sklearn.preprocessing import MinMaxScaler
 import methods
 TRIAL_NO = 5 # Number of runs per missing ratio
 
+METHODS = ['mean',
+                'knn',
+                'mice',
+                'gain',
+                'grape',
+                'mean-mi',
+                'knn-mi',
+                'mice-mi'
+            ]
 parser = argparse.ArgumentParser(
             usage='%(prog) [OPTIONS]',
             description='Practice regression with missing values.'
@@ -45,6 +54,20 @@ def get_rows(filename:str, sep=None):
         return np.array(rows, dtype=np.float64)
 
 
+# Call the appropriate value from methods module
+def impute_values(features, method='mean'):
+    imputed = None
+    method = method.lower()
+    if method == 'mean':
+        imputed = methods.mean_imp(features)
+    elif method == 'knn':
+        imputed = methods.knn(features)
+
+    if imputed is None:
+        print('Unrecognized imputing method!')
+
+
+    return imputed 
 def mae(preds:np.array, labels:np.array):
     return abs(preds - labels) / preds.shape[0]
 
@@ -91,34 +114,39 @@ def main():
     missingRatios = [0.1, 0.3, 0.5, 0.7]
     total_errors = {}
     for dataset, filename in get_dataset():
-        for ratio in missingRatios:
-            ratio_error = 0
-            for i in range(5):
+        for imp_method in METHODS:
+            total_errors[imp_method] = []
 
-                copy = dataset.copy()
-                # Only remove from the features
-                features, labels  = copy[:,:-1], copy[:,-1]
+            for ratio in missingRatios:
+                ratio_error = 0
+                for i in range(5):
 
-                remove_feature_values(features)
-                x_train, x_test, y_train, y_test = preprocess(features, labels)
-                imputed_train = methods.mean_imp(x_train)
-                imputed_test = methods.mean_imp(x_test) 
+                    copy = dataset.copy()
+                    # Only remove from the features
+                    features, labels  = copy[:,:-1], copy[:,-1]
 
-                # Train a linear regression model
-                model = LinearRegression()
-                model.fit(imputed_train, y_train)
+                    remove_feature_values(features, ratio)
+                    x_train, x_test, y_train, y_test = preprocess(features, labels)
 
-                # Get our predictions with imputed data
-                preds = model.predict(imputed_test)
-                error = mae(preds, y_test)
-                print(f'Test {i+1}: Missing data: {ratio}: \
-                    error: {error.mean()}')
+                    # Change imputation methods
+                    imputed_train = methods.mice(x_train)
+                    imputed_test = methods.mice(x_test) 
 
-                ratio_error += error.mean()
+                    # Train a linear regression model
+                    model = LinearRegression()
+                    model.fit(imputed_train, y_train)
 
-        total_errors[filename] = ratio_error / TRIAL_NO
+                    # Get our predictions with imputed data
+                    preds = model.predict(imputed_test)
+                    error = mae(preds, y_test)
+                    print(f'Test {i+1}: Missing data: {ratio}: \
+                        error: {error.mean()}')
 
+                    ratio_error += error.mean()
+
+                total_errors[imp_method].append(ratio_error / TRIAL_NO)
         break # debug
+    print(total_errors)
 
 
 if __name__=='__main__':
