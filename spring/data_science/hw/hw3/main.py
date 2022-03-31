@@ -15,7 +15,7 @@ import methods
 TRIAL_NO = 5 # Number of runs per missing ratio
 
 METHODS = ['mean',
-                'knn',
+                #'knn',
                 'mice',
                 'gain',
                 'grape',
@@ -62,6 +62,10 @@ def impute_values(features, method='mean'):
         imputed = methods.mean_imp(features)
     elif method == 'knn':
         imputed = methods.knn(features)
+    elif method == 'mice':
+        imputed = methods.mice(features)
+    elif '-mi' in method:
+        imputed = methods.missing_indicator(features, method)
 
     if imputed is None:
         print('Unrecognized imputing method!')
@@ -87,7 +91,7 @@ def get_dataset() -> np.array:
 
 def remove_feature_values(features:np.array, ratio=0.3):
     hideNum = int(features.size * ratio)
-    print(f'Removing {features.size}*{ratio} = {hideNum}')
+    #print(f'Removing {features.size}*{ratio} = {hideNum}')
     for i in range(hideNum):
         hrow = random.randint(0, features.shape[0]) - 1
         hcol = random.randint(0, features.shape[1]) - 1
@@ -106,8 +110,17 @@ def plot_missing_values(features:np.array):
     msno.matrix(pd.DataFrame(features))
     plt.show()
 
-
-def plot_error(errors, ratios=[0.1, 0.3, 0.5, 0.7]):
+# TODO: Modify this so we make all subplots in one figure?
+def plot_error(errors, methodName, ratios=[0.1, 0.3, 0.5, 0.7]):
+    fig = plt.figure()
+    ax = plt.subplot() # Debug
+    plt.title(methodName)
+    plt.xlabel('Missing Data Ratio')
+    plt.ylabel('Mean Absolute Error')
+    for method in errors:
+        ax.plot(ratios, errors[method], label=method)
+    ax.legend()
+    plt.show() 
     pass
 
 def main():
@@ -129,8 +142,8 @@ def main():
                     x_train, x_test, y_train, y_test = preprocess(features, labels)
 
                     # Change imputation methods
-                    imputed_train = methods.mice(x_train)
-                    imputed_test = methods.mice(x_test) 
+                    imputed_train = impute_values(x_train, imp_method)
+                    imputed_test = impute_values(x_test, imp_method) 
 
                     # Train a linear regression model
                     model = LinearRegression()
@@ -139,13 +152,15 @@ def main():
                     # Get our predictions with imputed data
                     preds = model.predict(imputed_test)
                     error = mae(preds, y_test)
-                    print(f'Test {i+1}: Missing data: {ratio}: \
+                    print(f'[{imp_method}] -- Test {i+1}: Missing data: {ratio}: \
                         error: {error.mean()}')
 
                     ratio_error += error.mean()
 
                 total_errors[imp_method].append(ratio_error / TRIAL_NO)
-        break # debug
+            plot_error(total_errors, imp_method, missingRatios)
+            break # debug
+        break
     print(total_errors)
 
 
