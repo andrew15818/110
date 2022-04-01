@@ -4,3 +4,6 @@
 [submodule "fall/fall/data_mining/homework/IBMGenerator"]
 	path = fall/fall/data_mining/homework/IBMGenerator
 	url = https://github.com/zakimjz/IBMGenerator
+[submodule "spring/data_science/hw/hw3/GAIN"]
+	path = spring/data_science/hw/hw3/GAIN
+	url = https://github.com/jsyoon0823/GAIN
