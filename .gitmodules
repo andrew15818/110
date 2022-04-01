@@ -7,3 +7,6 @@
 [submodule "spring/data_science/hw/hw3/GAIN"]
 	path = spring/data_science/hw/hw3/GAIN
 	url = https://github.com/jsyoon0823/GAIN
+[submodule "spring/data_science/hw/hw3/GRAPE"]
+	path = spring/data_science/hw/hw3/GRAPE
+	url = https://github.com/maxiaoba/GRAPE
