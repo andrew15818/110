@@ -15,13 +15,13 @@ import methods
 TRIAL_NO = 5 # Number of runs per missing ratio
 
 METHODS = ['mean',
-                #'knn',
-                'mice',
-                'gain',
-                'grape',
-                'mean-mi',
-                'knn-mi',
-                'mice-mi'
+            #    'knn',
+            #    'mice',
+                #'gain',
+                #'grape',
+                #'mean-mi',
+                #'knn-mi',
+                #'mice-mi'
             ]
 parser = argparse.ArgumentParser(
             usage='%(prog) [OPTIONS]',
@@ -66,6 +66,10 @@ def impute_values(features, method='mean'):
         imputed = methods.mice(features)
     elif '-mi' in method:
         imputed = methods.missing_indicator(features, method)
+    elif method == 'gain':
+        imputed = methods.gain(features)
+    elif method == 'grape':
+        imputed = methods.grape(features)
 
     if imputed is None:
         print('Unrecognized imputing method!')
@@ -111,24 +115,23 @@ def plot_missing_values(features:np.array):
     plt.show()
 
 # TODO: Modify this so we make all subplots in one figure?
-def plot_error(errors, methodName, ratios=[0.1, 0.3, 0.5, 0.7]):
-    fig = plt.figure()
-    ax = plt.subplot() # Debug
-    plt.title(methodName)
-    plt.xlabel('Missing Data Ratio')
-    plt.ylabel('Mean Absolute Error')
-    for method in errors:
-        ax.plot(ratios, errors[method], label=method)
-    ax.legend()
-    plt.show() 
-    pass
-
+# Structure of errors dict 
+# Errors {'filename': {
+#                {'method1': [error1, error2, ]}
+#    }
+#}
+def plot_error(errors,  ratios=[0.1, 0.3, 0.5, 0.7]):
+    print(errors)
+    fig, axis = plt.subplots(3, 3)
+    
 def main():
     missingRatios = [0.1, 0.3, 0.5, 0.7]
+    plot = None
     total_errors = {}
     for dataset, filename in get_dataset():
+        total_errors[filename] = {}
         for imp_method in METHODS:
-            total_errors[imp_method] = []
+            total_errors[filename][imp_method] = []
 
             for ratio in missingRatios:
                 ratio_error = 0
@@ -157,9 +160,10 @@ def main():
 
                     ratio_error += error.mean()
 
-                total_errors[imp_method].append(ratio_error / TRIAL_NO)
-            plot_error(total_errors, imp_method, missingRatios)
-            break # debug
+                total_errors[filename][imp_method].append(ratio_error / TRIAL_NO)
+        plot = plot_error(total_errors, missingRatios)
+            #break # debug
+        plot.show()
         break
     print(total_errors)
 
