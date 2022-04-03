@@ -58,6 +58,7 @@ def get_rows(filename:str, sep=None):
 def impute_values(features, method='mean'):
     imputed = None
     method = method.lower()
+    # TODO: delegate function call to function in methods file?
     if method == 'mean':
         imputed = methods.mean_imp(features)
     elif method == 'knn':
@@ -114,15 +115,20 @@ def plot_missing_values(features:np.array):
     msno.matrix(pd.DataFrame(features))
     plt.show()
 
-# TODO: Modify this so we make all subplots in one figure?
-# Structure of errors dict 
-# Errors {'filename': {
-#                {'method1': [error1, error2, ]}
-#    }
-#}
 def plot_error(errors,  ratios=[0.1, 0.3, 0.5, 0.7]):
     print(errors)
     fig, axis = plt.subplots(3, 3)
+    for idx, file in enumerate(errors):
+        plt.subplot(3, 3, idx+1)
+        # TODO: Ugly way of getting filename
+        plt.title(file.split('/')[-1])
+        fileErrors = errors[file]
+        for method in fileErrors:
+            plt.plot(ratios, fileErrors[method], label=method)
+        plt.legend()
+    plt.show()
+
+
     
 def main():
     missingRatios = [0.1, 0.3, 0.5, 0.7]
@@ -161,12 +167,11 @@ def main():
                     ratio_error += error.mean()
 
                 total_errors[filename][imp_method].append(ratio_error / TRIAL_NO)
-        plot = plot_error(total_errors, missingRatios)
-            #break # debug
-        plot.show()
-        break
-    print(total_errors)
 
+            #break # debug
+        #break
+    #print(total_errors)
+    plot_error(total_errors, missingRatios)
 
 if __name__=='__main__':
     main()
