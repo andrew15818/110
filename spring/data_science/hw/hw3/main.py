@@ -14,9 +14,9 @@ from sklearn.preprocessing import MinMaxScaler
 import methods
 TRIAL_NO = 5 # Number of runs per missing ratio
 
-METHODS = ['mean',
-            #    'knn',
-            #    'mice',
+METHODS = [#'mean',
+                #'knn',
+                #'mice',
                 #'gain',
                 #'grape',
                 #'mean-mi',
@@ -55,7 +55,7 @@ def get_rows(filename:str, sep=None):
 
 
 # Call the appropriate value from methods module
-def impute_values(features, method='mean'):
+def impute_values(features, method='mean', missingRatio=0.1):
     imputed = None
     method = method.lower()
     # TODO: delegate function call to function in methods file?
@@ -68,7 +68,7 @@ def impute_values(features, method='mean'):
     elif '-mi' in method:
         imputed = methods.missing_indicator(features, method)
     elif method == 'gain':
-        imputed = methods.gain(features)
+        imputed = methods.gain(features, missingRatio)
     elif method == 'grape':
         imputed = methods.grape(features)
 
@@ -147,19 +147,20 @@ def main():
                     # Only remove from the features
                     features, labels  = copy[:,:-1], copy[:,-1]
 
-                    remove_feature_values(features, ratio)
                     x_train, x_test, y_train, y_test = preprocess(features, labels)
+                    remove_feature_values(x_train, ratio)
 
                     # Change imputation methods
-                    imputed_train = impute_values(x_train, imp_method)
-                    imputed_test = impute_values(x_test, imp_method) 
+                    imputed_train = impute_values(x_train, imp_method, ratio)
+                    # Shouldn't impute test b/c we're trying to predict how
+                    # well it approaches error on og data
+                    #imputed_test = impute_values(x_test, imp_method) 
 
                     # Train a linear regression model
                     model = LinearRegression()
                     model.fit(imputed_train, y_train)
 
-                    # Get our predictions with imputed data
-                    preds = model.predict(imputed_test)
+                    preds = model.predict(x_test)
                     error = mae(preds, y_test)
                     print(f'[{imp_method}] -- Test {i+1}: Missing data: {ratio}: \
                         error: {error.mean()}')
@@ -167,10 +168,7 @@ def main():
                     ratio_error += error.mean()
 
                 total_errors[filename][imp_method].append(ratio_error / TRIAL_NO)
-
-            #break # debug
-        #break
-    #print(total_errors)
+    print(total_errors)
     plot_error(total_errors, missingRatios)
 
 if __name__=='__main__':
