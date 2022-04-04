@@ -1,5 +1,10 @@
 *.aux
 *.log
+*.bbl
+*.blg
+*.bcf
+*.log
+*.xml
 
 __pycache__/
 
