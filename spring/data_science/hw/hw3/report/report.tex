@@ -1,0 +1,73 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+
+% Chinese name
+\usepackage{xeCJK}
+\setCJKmainfont{WenQuanYi Micro Hei Mono}
+
+% Citations
+\usepackage[backend=biber,style=ieee]{biblatex}
+\addbibresource{report.bib}
+
+\begin{document}
+\title{Data Science Homework 3}
+\author{Andr\'es Ponce,
+\and
+彭思安
+\and
+P76107116
+}
+\maketitle
+\section{Introduction}
+Current machine learning and deep learning models have shown impressive
+abilities to learn patterns from data.
+From object recognition~\cite{he2016deep} to text generation~\cite{brown2020language},
+many different fields have been influenced by machine learning.
+These models will often take a data sample as well as its label, and
+constantly adjust its weights to minimize the loss function.
+Machine learning models often require large amounts of data, which they
+use to learn the patterns that will be used when they are tested.
+A constant issue with current models is obtaining a large enough amount
+of data which accurately represents the data the model will encounter 
+after training.
+
+When trying to train a model, an important first step is ensuring the quality
+of the input data.
+Due to the messy and often chaotic nature of data collection in real 
+applications, a preprocessing step is necessary to ensure data quality.
+Properties of the data such as the mean and standard deviation can tell
+us a lot about the nature of the data.
+One issue that is not so straightforward to solve is missing data.
+Sometimes data is missing completely at random, with no relation 
+between the missing pieces of data, while other times some
+factor has an influence on the missing attributes.
+
+To address missing data several \emph{imputation} methods have been 
+developed, where missing data attributes are filled in using some other
+properties of the data.
+Some methods rely on statistical properties such as the mean, while
+others use clustering techniques to fill in the missing data.
+Still others use an entire neural network to estimate the missing values.
+
+The present assignment investigates different data imputation methods
+given different datasets and different amounts of missing data in each
+to determine the effectiveness of these methods.
+First, we introduce the methods used, followed a discussion on the 
+experiments.
+Finally, we discuss the results of the experiments and provide our
+conclusions.
+
+\section{Methods}
+\subsection{Mean}
+Perhaps the simplest imputation method is using the mean.
+In this method, the mean along the columns of the non-missing data
+is used to fill in all the missing values of that column.
+
+
+\section{Experimental Analysis}
+\section{Conclusions}
+
+\printbibliography
+\end{document}
