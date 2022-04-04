@@ -1,5 +1,5 @@
 \documentclass[12pt]{article}
-\usepackage{amsmath}
+\usepackage{amsmath, amsfonts}
 \usepackage{graphicx}
 \usepackage[margin=1in]{geometry}
 
@@ -61,11 +61,79 @@ conclusions.
 
 \section{Methods}
 \subsection{Mean}
-Perhaps the simplest imputation method is using the mean.
+Perhaps the simplest imputation method we tested is using the mean.
 In this method, the mean along the columns of the non-missing data
 is used to fill in all the missing values of that column.
+Using the column means will preserve the means of that column,
+which might be desirable since we would not want to change the 
+properties of the data.
+Mean calculation can also be efficiently done in numerical libraries, 
+and since we only calculate the mean once per column in our dataset, 
+mean imputation was the quickest method we tested.
+This speed could be reason enough to choose mean imputation.
 
+\subsection{K-Nearest Neighbors}
+the $k$-nearest neighbors algorithm has been widely used in unsupervised
+learning scenarios where we assign a label to a data point based on the
+value of the $k$ closest points.
+With imputation, we assign the mean value of the $k$ nearest points,
+where ``closeness'' is measured in our experiments using a modified
+version of the euclidean distance.
 
+While running the algorithm, we impute a different value to 
+each missing number.
+For every missing number, we must find its closest $k$ points
+and calculate their distance.
+Since we impute a different value for each missing number, this 
+method performs better than the mean imputation.
+However, since we have to impute each missing vlaue individually,
+the running time also increases using this method.
+
+\subsection{Multivariate Imputation by Chained Equations}
+In this method, the columns with missing values are treated as a 
+function of the other columns~\cite{pedregosa2011scikit}.
+This method essentially treats imputation as a regression problem
+with the other columns as inputs.
+
+At each iteration, we choose a feature column with missing values $y$
+as the regression target, and the other columns $x$ as the inputs.
+Then a linear regressor is trained on the known values of $y$,
+and this regressor is then used to impute the missing values of $y$.
+We can repeat this process multiple times for a more accurate regressor.
+
+A potential problem with this approach is that as the percentage of 
+missing values grows, the regressor will have less and less data to 
+train with, which might potentially result in lower accuracy.
+If all the data is distributed similarly, training a regressor
+could be a quick way to impute values with low percentages of 
+missing values.
+With linear regression we should expect a more accurate guess than 
+with mean imputation, especially at lower missing percentages.
+
+\subsection{Missing Data Imputation using Generative Adversarial Nets}
+This method~\cite{yoon2018gain} uses the GAN architecture~\cite{goodfellow2014generative} 
+to impute missing values.
+The architecture consists of two competing networks, the Generator $G$
+which takes a vector with missing values and attempts an imputation.
+The Discriminator $G$ then attempts to determine which values in the 
+vector have been imputed by $G$ and which come from the original input.
+
+$D$ also takes in an input called the \emph{hint} $H$, which specifies
+the probability that a specific sample was observed in the conditional
+probability $P(\boldsymbol{X}|\hat{\boldsymbol{X}} = \hat{\boldsymbol{x}})$.
+The training objective is then 
+\[V(D, G) = \mathbb{E}_{\hat{\boldsymbol{X}}, \boldsymbol{M}, \boldsymbol{H}}
+[\boldsymbol{M}^T\log D(\hat{\boldsymbol{X}},\boldsymbol{H}) + (1-\boldsymbol{M})^T
+\log(1-D(\hat{\boldsymbol{X}}, \boldsymbol{H}))]\]
+Essentially we try to minimize the values of the inputs that are predicted as coming
+from $D$.
+
+Since this method uses two neural networks to produce the imputed values matrix,
+we first have to train the model.
+Fully training the model takes a considerable amount of time which only make 
+sense given greatly superior results.
+
+\subsection{GRAPE: Handling Missing Data with Graph Representation Learning}
 \section{Experimental Analysis}
 \section{Conclusions}
 
