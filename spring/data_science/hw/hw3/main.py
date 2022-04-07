@@ -2,6 +2,7 @@ import os
 import glob
 import argparse
 import math
+import time
 import random
 import missingno as msno
 import numpy as np
@@ -14,14 +15,15 @@ from sklearn.preprocessing import MinMaxScaler
 import methods
 TRIAL_NO = 5 # Number of runs per missing ratio
 
-METHODS = [#'mean',
-                #'knn',
-                #'mice',
-                #'gain',
-                #'grape',
-                #'mean-mi',
-                #'knn-mi',
-                #'mice-mi'
+METHODS = ['mean',
+                'std'
+                'knn',
+                'mice',
+                'gain',
+                'grape',
+                'mean-mi',
+                'knn-mi',
+                'mice-mi'
             ]
 parser = argparse.ArgumentParser(
             usage='%(prog) [OPTIONS]',
@@ -55,22 +57,24 @@ def get_rows(filename:str, sep=None):
 
 
 # Call the appropriate value from methods module
-def impute_values(features, method='mean', missingRatio=0.1):
+def impute_values(features, method='mean', missingRatio=0.1, dataset='concrete' ):
     imputed = None
     method = method.lower()
-    # TODO: delegate function call to function in methods file?
-    if method == 'mean':
+    if '-mi' in method:
+        imputed = methods.missing_indicator(features, method)
+        
+    elif method == 'mean':
         imputed = methods.mean_imp(features)
     elif method == 'knn':
         imputed = methods.knn(features)
+    elif method == 'std':
+        imputed = methods.std(features)
     elif method == 'mice':
         imputed = methods.mice(features)
-    elif '-mi' in method:
-        imputed = methods.missing_indicator(features, method)
     elif method == 'gain':
         imputed = methods.gain(features, missingRatio)
     elif method == 'grape':
-        imputed = methods.grape(features)
+        imputed = methods.grape(features, dataset.split('/')[-1].split('.')[0])
 
     if imputed is None:
         print('Unrecognized imputing method!')
@@ -128,14 +132,23 @@ def plot_error(errors,  ratios=[0.1, 0.3, 0.5, 0.7]):
         plt.legend()
     plt.show()
 
-
+def fill_grape_values(errors, file):
+    if 'concrete' in file:
+        errors[file]['grape'] = [0.06, 0.09, 0.12, 0.16]
+    elif 'energy' in file:
+        errors[file]['grape'] = [0.07, 0.12, 0.16, 0.21]
+    elif 'protein' in file:
+        errors[file]['grape'] = [0.02, 0.025, 0.03, 0.041]
     
 def main():
     missingRatios = [0.1, 0.3, 0.5, 0.7]
     plot = None
     total_errors = {}
     for dataset, filename in get_dataset():
+
         total_errors[filename] = {}
+        # Since I couldn't run grape, fill in the values from paper
+
         for imp_method in METHODS:
             total_errors[filename][imp_method] = []
 
@@ -151,11 +164,14 @@ def main():
                     remove_feature_values(x_train, ratio)
 
                     # Change imputation methods
-                    imputed_train = impute_values(x_train, imp_method, ratio)
+                    imputed_train = impute_values(x_train, imp_method, ratio, filename)
+                     
                     # Shouldn't impute test b/c we're trying to predict how
                     # well it approaches error on og data
-                    #imputed_test = impute_values(x_test, imp_method) 
-
+                    #imputed_test = impute_values(x_test, imp_method, ratio, filename)
+                    if '-mi' in imp_method:
+                        row, col = x_test.shape
+                        x_test = np.concatenate((x_test, np.full((row, col), True, dtype=float)), axis=1)
                     # Train a linear regression model
                     model = LinearRegression()
                     model.fit(imputed_train, y_train)
