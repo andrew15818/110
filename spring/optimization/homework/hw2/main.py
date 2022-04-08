@@ -10,9 +10,13 @@ def fnc(x) -> float:
 # Derivative of function
 def dfnc(x, a, b):
     return (2*a*x + b)
+    
 # Quadratic approixmation of f
-def q(x,a, b, c):
-    return a*(x ** 2) + b*x + c
+def q(x,al, am, au):
+    num = ((fnc(al)*(x-am)*(x-au))/((al-am)*(al-au))
+            + (fnc(am)*(x-al)*(x-au))/((am-al)*(am-au))
+            + (fnc(au)*(x-al)*(x-am))/ ((au-al)*(au-am)))
+    return num
 
 def p1(a, b):
     x1 = RATIO*a + (1-RATIO)*b
@@ -36,31 +40,45 @@ def p1(a, b):
     minimum = min(f1, f2)
     print(f'Minimum using golden search is {minimum}.')
 
-
 # Quadratic interpolation for problem 1.b
 def quad_int(start, end):
-    x1, x2 = start, end
-    a, b,c  = -2, -2, 0
-    x_ = 10
-    while abs((fnc(x_) - q(x_, a, b, c)) / fnc(x_)) > tol:
-        tmp = fnc(x1) - fnc(x2) - dfnc(x1-x2, a, b)
-        a = tmp / (-(x1-x2) ** 2)
-        b = dfnc(x1, a, b) + 2*x1*(tmp / ((x1-x2)**2))
-        #x_ -= -b/(2*a)
-        x_ = -b/(2*a)
-        if fnc(x_) < fnc(x1):
-            x1 = x_
-        elif fnc(x_) < fnc(x2):
-            x2 = x_
-        print(f'\tInterval between {x1}, {x2}')
-        print(q(x_,a, b,0), x_)
+    # Beginning, middle end of interval we're
+    # focusing on
+    al, au = start, end
+    am = (al + au) / 2
+    print(al, am, au)
+    maxiter = 10
+    for i in range(maxiter):
+        xstar = 0.5 * (fnc(al)*(math.pow(am, 2) - math.pow(au, 2)) 
+                    + fnc(am)*(math.pow(au, 2) -math.pow(al, 2)) 
+                    + fnc(au)*(math.pow(al, 2) - math.pow(am, 2)))
+        den = (fnc(al)*(am-au) + fnc(am)*(au-al) + fnc(au)*(al-am))
+        xstar /= den
 
+        num = fnc(xstar) if fnc(xstar) != 0 else q(xstar, al, am, au)
+        if abs((fnc(xstar) - q(xstar, al, am, au)) / num) < tol:
+            print('FOund the minimum')
+            return xstar 
 
+        # Adjust the new points
+        elif xstar <= am:
+            if fnc(am) >= fnc(xstar):
+                am = xstar
+                au = am
+            else:
+                al = xstar
+        
+        elif xstar > am:
+            if fnc(am) >= fnc(xstar):
+                al = amam = xstar
+            else:
+                au = xstar
+        print(f'Iter {i}: {xstar}')
 
 
 def main():
     p1(-2, 2)
-    quad_int(-2, 2)
+    quad_int(-2, 3)
 
 
 if __name__== '__main__':
