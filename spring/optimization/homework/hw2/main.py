@@ -45,14 +45,16 @@ def quad_int(start, end):
     # Beginning, middle end of interval we're
     # focusing on
     al, au = start, end
-    am = (al + au) / 2
-    print(al, am, au)
+    #print(al, am, au)
     maxiter = 10
     for i in range(maxiter):
+        am = (al + au) / 2
+
         xstar = 0.5 * (fnc(al)*(math.pow(am, 2) - math.pow(au, 2)) 
                     + fnc(am)*(math.pow(au, 2) -math.pow(al, 2)) 
                     + fnc(au)*(math.pow(al, 2) - math.pow(am, 2)))
         den = (fnc(al)*(am-au) + fnc(am)*(au-al) + fnc(au)*(al-am))
+        den = den +1 if den == 0 else den
         xstar /= den
 
         num = fnc(xstar) if fnc(xstar) != 0 else q(xstar, al, am, au)
@@ -73,12 +75,12 @@ def quad_int(start, end):
                 al = amam = xstar
             else:
                 au = xstar
-        print(f'Iter {i}: {xstar}')
+        print(f'Iter {i}: {xstar}, {al},{am},{au}')
 
 
 def main():
     p1(-2, 2)
-    quad_int(-2, 3)
+    quad_int(-2, 2)
 
 
 if __name__== '__main__':
