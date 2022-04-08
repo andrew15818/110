@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 
 RATIO = ( math.sqrt(5)-1)  / 2
 tol = 1.0e-6
+# Plot the function values of each iteration
+def plot(vals, name):
+    plt.scatter(range(len(vals)), vals, label = name)
+    plt.legend()
 
 def fnc(x) -> float:
     return (x ** 3) * math.exp(-(x ** 2))
@@ -17,8 +21,8 @@ def q(x,al, am, au):
             + (fnc(am)*(x-al)*(x-au))/((am-al)*(am-au))
             + (fnc(au)*(x-al)*(x-am))/ ((au-al)*(au-am)))
     return num
-
 def p1(a, b):
+    funcValues = []
     x1 = RATIO*a + (1-RATIO)*b
     x2 = (1-RATIO)*a + RATIO*b
     f1, f2  = fnc(x1), fnc(x2)
@@ -36,18 +40,21 @@ def p1(a, b):
             f2 = f1
             x1 = (RATIO)*a + (1 - RATIO)*b
             f1 = fnc(x1)
+        funcValues.append(min(x1, x2))
         #print(f'\tInterval between {x1}, {x2}')
     minimum = min(f1, f2)
+    return funcValues
     print(f'Minimum using golden search is {minimum}.')
 
 # Quadratic interpolation for problem 1.b
 def quad_int(start, end):
     # Beginning, middle end of interval we're
     # focusing on
+    funcValues = []
     al, au = start, end
-    #print(al, am, au)
-    maxiter = 10
-    for i in range(maxiter):
+    foundMin = False
+    i = 0
+    while not foundMin:
         am = (al + au) / 2
 
         xstar = 0.5 * (fnc(al)*(math.pow(am, 2) - math.pow(au, 2)) 
@@ -59,8 +66,8 @@ def quad_int(start, end):
 
         num = fnc(xstar) if fnc(xstar) != 0 else q(xstar, al, am, au)
         if abs((fnc(xstar) - q(xstar, al, am, au)) / num) < tol:
-            print('FOund the minimum')
-            return xstar 
+            foundMin = True
+            continue
 
         # Adjust the new points
         elif xstar <= am:
@@ -75,12 +82,16 @@ def quad_int(start, end):
                 al = amam = xstar
             else:
                 au = xstar
+        funcValues.append(xstar)
+        i += 1
         print(f'Iter {i}: {xstar}, {al},{am},{au}')
+    return funcValues
 
 
 def main():
-    p1(-2, 2)
-    quad_int(-2, 2)
+    plot(p1(-2, 2), 'golden section')
+    plot(quad_int(-2, 2), 'quadratic')
+    plt.show()
 
 
 if __name__== '__main__':
