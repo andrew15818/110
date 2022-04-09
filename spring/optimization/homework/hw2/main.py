@@ -1,4 +1,5 @@
 import math
+import numpy as np
 import matplotlib.pyplot as plt
 
 RATIO = ( math.sqrt(5)-1)  / 2
@@ -7,9 +8,15 @@ tol = 1.0e-6
 def plot(vals, name):
     plt.scatter(range(len(vals)), vals, label = name)
     plt.legend()
-
+# for p1
 def fnc(x) -> float:
     return (x ** 3) * math.exp(-(x ** 2))
+
+# for p2
+def fnc2(vals) -> float:
+    x1, x2  = vals[0], vals[1]
+    return (((math.pow(x1, 2) + x2 -1)) ** 2 
+            + ((x1 + x2 -7) ** 2))
 
 # Derivative of function
 def dfnc(x, a, b):
@@ -87,11 +94,32 @@ def quad_int(start, end):
         print(f'Iter {i}: {xstar}, {al},{am},{au}')
     return funcValues
 
+# Hooke-Jeeves method
+# First use the same tol
+def p2(start, end):
+    mid = (start + end) / 2
+
+    uk = np.array([mid, mid]) # Current guess
+    dims = uk.shape[0]
+
+    guk = np.zeros((dims)) # guess gradient
+    h = 1e-2 # Step size
+    exp = np.eye(dims) # Exploration directions
+    for dim in range(dims):
+        fprev = fnc2(uk + guk - (h  * exp[dim]))
+        f = fnc2(uk + guk)
+        fnext = fnc2(uk + guk + (h * exp[dim]))
+        if fprev < f and fprev < fnext:
+            guk -= (h * exp[dim])
+        elif fnext < fprev and fprev < fnext:
+            guk += (h * exp[dim])
+        print(f'prev: {fprev} f: {f} next: {fnext}')
 
 def main():
-    plot(p1(-2, 2), 'golden section')
-    plot(quad_int(-2, 2), 'quadratic')
-    plt.show()
+    #plot(p1(-2, 2), 'golden section')
+    #plot(quad_int(-2, 2), 'quadratic')
+    p2(-5, 5)
+    #plt.show()
 
 
 if __name__== '__main__':
