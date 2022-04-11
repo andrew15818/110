@@ -18,10 +18,6 @@ def fnc2(vals) -> float:
     return (((math.pow(x1, 2) + x2 -1)) ** 2 
             + ((x1 + x2 -7) ** 2))
 
-# Derivative of function
-def dfnc(x, a, b):
-    return (2*a*x + b)
-    
 # Quadratic approixmation of f
 def q(x,al, am, au):
     num = ((fnc(al)*(x-am)*(x-au))/((al-am)*(al-au))
@@ -97,24 +93,78 @@ def quad_int(start, end):
 # Hooke-Jeeves method
 # First use the same tol
 def p2(start, end):
+    # For plottign
+    uk_list = []
+    f_list = []
+    
     mid = (start + end) / 2
+    u = np.array([0, 0]) # Minimum vector
+    dims = u.shape[0]
+    h = 1# Step size
+    min_step = 1e-4 # Minimum step size
+    du = np.zeros(u.shape) # Gradient along u
+    minu = fnc2(u)          # Initial minimum value
+    max_iter, i = 30, 0
+    for i in range(max_iter):
+        # Find best direction of increase along each dimension
+        for j in range(dims):
+            du[j] -= h
+            fprev = fnc2(u + du)
+            du[j] += 2 *h
+            fnext = fnc2(u + du)
+           
+            if fnext < fprev and fnext < minu:
+                minu = fnext
 
-    uk = np.array([mid, mid]) # Current guess
-    dims = uk.shape[0]
+            elif fprev <= minu:
+                du[j] = -h
+                minu = fprev 
+            # Can't further minimize along this 
+            # dimension
+            else:
+                du[j] = 0
+            print(u, du, fprev, minu, fnext)
+        # Check for termination
+        if np.linalg.norm(du) < tol:
+            if h < min_step:
+                print('Breaking')
+                break
+            else:
+                u += du.astype(np.int64)
+                h /= 2
+        # Check how far we can move along u
+        
+        k = 0
+        while k < max_iter:
+            k += 1
+            fm = fnc2(u + du)
+            if fm < minu:
+                minu = fm
+                u += du
+            else:
+                break
+          
+        #u += du.astype(np.int64)
+        
+    '''
+    # Plotting
+    uk_list = np.array(uk_list)
+    f_list = np.array(f_list)
+    plot2(uk_list, f_list)
+    '''
 
-    guk = np.zeros((dims)) # guess gradient
-    h = 1e-2 # Step size
-    exp = np.eye(dims) # Exploration directions
-    for dim in range(dims):
-        fprev = fnc2(uk + guk - (h  * exp[dim]))
-        f = fnc2(uk + guk)
-        fnext = fnc2(uk + guk + (h * exp[dim]))
-        if fprev < f and fprev < fnext:
-            guk -= (h * exp[dim])
-        elif fnext < fprev and fprev < fnext:
-            guk += (h * exp[dim])
-        print(f'prev: {fprev} f: {f} next: {fnext}')
+def plot2(uk_list, f_list):
+    X, Y = np.meshgrid(uk_list[:,0], uk_list[:,1])
+    Z = np.zeros(X.shape)
+    for i in range(X.shape[0]):
+        for j in range(X.shape[1]):
+            Z[i,j] = fnc2(np.array([X[i,j], Y[i,j]]))
+    plt.contour(X, Y, Z)
 
+    for i in range(1, f_list.shape[0]):
+        prev = uk_list[i-1]
+        plt.quiver(uk_list[i,0], uk_list[i,1], prev[0], prev[1])
+    plt.show()
 def main():
     #plot(p1(-2, 2), 'golden section')
     #plot(quad_int(-2, 2), 'quadratic')
