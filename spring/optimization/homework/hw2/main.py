@@ -1,6 +1,9 @@
 import math
+from turtle import down
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as ptch
+import matplotlib.collections as clct
 
 RATIO = ( math.sqrt(5)-1)  / 2
 tol = 1.0e-6
@@ -8,14 +11,15 @@ tol = 1.0e-6
 def plot(vals, name):
     plt.scatter(range(len(vals)), vals, label = name)
     plt.legend()
+
 # for p1
 def fnc(x) -> float:
     return (x ** 3) * math.exp(-(x ** 2))
 
-# for p2
+# for p2, p3
 def fnc2(vals) -> float:
     x1, x2  = vals[0], vals[1]
-    return (((math.pow(x1, 2) + x2 -1)) ** 2 
+    return (((math.pow(x1, 2) + x2 -11)) ** 2 
             + ((x1 + x2 -7) ** 2))
 
 # Quadratic approixmation of f
@@ -165,10 +169,71 @@ def plot2(uk_list, f_list):
         prev = uk_list[i-1]
         plt.quiver(uk_list[i,0], uk_list[i,1], prev[0], prev[1])
     plt.show()
+
+def plot_simplexes(figs):
+    print(figs)
+    patches = []
+    fig, ax = plt.subplots()
+    for simp in figs[2:5]:
+        print(simp)
+        patches.append(ptch.Polygon(simp, fill=False))
+    p = clct.PatchCollection(patches, alpha=0.4)
+    ax.add_collection(p)
+    plt.show()
+def downhill_simplex(start, end, dims):
+    points_list = [] # For plotting previous simplexes
+    alpha = 1 # Hyperparameters
+    gamma = 2
+    beta = 0.5
+    points = np.zeros((dims+1, dims)) # N+1 points defines a simplex
+    I = np.eye(dims)
+    points[:dims, :dims] += I # Get the initial points, remaining row is origin
+    max_iter = 30
+    i = 0
+    while True:
+        F = np.apply_along_axis(fnc2, 1, points) # Function values for each point
+
+        order = np.argsort(F)
+        points = points[order] # Order points based on F
+
+        xmin, xmax = points[0], points[-1]    
+        xavg = np.mean(points[:-1], axis=0) # Average point excluding xmax 
+        if abs(np.linalg.norm(xmax - xmin)) < tol or i > max_iter:
+            break
+        # Reflection point
+        xref = xavg + alpha*(xavg - xmax)
+        print(xmin, xavg, xmax)
+        if fnc2(xmin) > fnc2(xref):
+            print("Getting the expansion point")
+            xexp = xavg + gamma*(xref - xavg)
+            if fnc2(xref) > fnc2(xexp):
+                xmax = xexp
+            else:
+                xmax = xref
+            # We should go back to step 1
+            # Recalculate points
+        elif fnc2(points[-2]) >= fnc2(xref):
+            print('Adjusting max value')
+            xmax = xref
+        else:
+            xp = min(fnc2(xref), fnc2(xmax))
+            xcont = xavg + beta * (xp - xavg)
+            if fnc2(xcont) > xp:
+                points = np.array([row + ((xmin - row)/2) for row in points])
+            else:
+                xmax = xcont
+        points_list.append(points)
+        points = np.array([xmin, xavg, xmax])
+        i += 1
+    plot_simplexes(points_list)
+
+    
 def main():
     #plot(p1(-2, 2), 'golden section')
     #plot(quad_int(-2, 2), 'quadratic')
-    p2(-5, 5)
+    #p2(-5, 5)
+    downhill_simplex(-5, 5, 2)
+
     #plt.show()
 
 
