@@ -50,8 +50,9 @@ def p1(a, b):
         funcValues.append(min(x1, x2))
         #print(f'\tInterval between {x1}, {x2}')
     minimum = min(f1, f2)
-    return funcValues
     print(f'Minimum using golden search is {minimum}.')
+    return funcValues
+    
 
 # Quadratic interpolation for problem 1.b
 def quad_int(start, end):
@@ -68,7 +69,7 @@ def quad_int(start, end):
                     + fnc(am)*(math.pow(au, 2) -math.pow(al, 2)) 
                     + fnc(au)*(math.pow(al, 2) - math.pow(am, 2)))
         den = (fnc(al)*(am-au) + fnc(am)*(au-al) + fnc(au)*(al-am))
-        den = den +1 if den == 0 else den
+        den = den +.001 if den == 0 else den
         xstar /= den
 
         num = fnc(xstar) if fnc(xstar) != 0 else q(xstar, al, am, au)
@@ -91,7 +92,8 @@ def quad_int(start, end):
                 au = xstar
         funcValues.append(xstar)
         i += 1
-        print(f'Iter {i}: {xstar}, {al},{am},{au}')
+        #print(f'Iter {i}: {xstar}, {al},{am},{au}')
+    print(f'Minimum using quadratic interpolation is: {xstar} {fnc(xstar)}')
     return funcValues
 
 # Hooke-Jeeves method
@@ -102,9 +104,9 @@ def p2(start, end):
     f_list = []
     
     mid = (start + end) / 2
-    u = np.array([0, 0]) # Minimum vector
+    u = np.array([0, 0], dtype=np.float64) # Minimum vector
     dims = u.shape[0]
-    h = 1# Step size
+    h = 1.2# Step size
     min_step = 1e-4 # Minimum step size
     du = np.zeros(u.shape) # Gradient along u
     minu = fnc2(u)          # Initial minimum value
@@ -114,7 +116,7 @@ def p2(start, end):
         for j in range(dims):
             du[j] -= h
             fprev = fnc2(u + du)
-            du[j] += 2 *h
+            du[j] = h
             fnext = fnc2(u + du)
            
             if fnext < fprev and fnext < minu:
@@ -127,15 +129,20 @@ def p2(start, end):
             # dimension
             else:
                 du[j] = 0
-            print(u, du, fprev, minu, fnext)
+            #print(u, du, fprev, minu, fnext)
+            uk_list.append(du.copy())   
+            f_list.append(fnc2(u + du))
         # Check for termination
-        if np.linalg.norm(du) < tol:
+        if np.linalg.norm(du) == 0:
             if h < min_step:
-                print('Breaking')
+                #print('Breaking')
                 break
             else:
-                u += du.astype(np.int64)
+                u += du
                 h /= 2
+                #print(h)
+        else:
+            u += du
         # Check how far we can move along u
         
         k = 0
@@ -145,40 +152,47 @@ def p2(start, end):
             if fm < minu:
                 minu = fm
                 u += du
+                #uk_list.append(u)
             else:
                 break
           
         #u += du.astype(np.int64)
         
-    '''
+        
+    print(f'Minimum using Hooke Jeeves is {u}, {fnc2(u)}')    
     # Plotting
     uk_list = np.array(uk_list)
     f_list = np.array(f_list)
     plot2(uk_list, f_list)
-    '''
+
+    
 
 def plot2(uk_list, f_list):
+    '''
     X, Y = np.meshgrid(uk_list[:,0], uk_list[:,1])
     Z = np.zeros(X.shape)
     for i in range(X.shape[0]):
         for j in range(X.shape[1]):
             Z[i,j] = fnc2(np.array([X[i,j], Y[i,j]]))
     plt.contour(X, Y, Z)
-
+    '''
     for i in range(1, f_list.shape[0]):
         prev = uk_list[i-1]
-        plt.quiver(uk_list[i,0], uk_list[i,1], prev[0], prev[1])
+        direction = prev - uk_list[i]
+        plt.arrow(uk_list[i,0], uk_list[i,1], direction[0], direction[1],
+                width=.01) 
     plt.show()
 
 def plot_simplexes(figs):
-    print(figs)
     patches = []
     fig, ax = plt.subplots()
-    for simp in figs[2:5]:
-        print(simp)
-        patches.append(ptch.Polygon(simp, fill=False))
-    p = clct.PatchCollection(patches, alpha=0.4)
-    ax.add_collection(p)
+    for simp in figs:
+        #patches.append(ptch.Polygon(simp, fill=False))
+        centroid = np.mean(simp, axis=0)
+        plt.plot(centroid, 'o')
+
+    #p = clct.PatchCollection(patches, alpha=0.4)
+    #ax.add_collection(p)
     plt.show()
 def downhill_simplex(start, end, dims):
     points_list = [] # For plotting previous simplexes
@@ -202,9 +216,9 @@ def downhill_simplex(start, end, dims):
             break
         # Reflection point
         xref = xavg + alpha*(xavg - xmax)
-        print(xmin, xavg, xmax)
+        #print(xmin, xavg, xmax)
         if fnc2(xmin) > fnc2(xref):
-            print("Getting the expansion point")
+            #print("Getting the expansion point")
             xexp = xavg + gamma*(xref - xavg)
             if fnc2(xref) > fnc2(xexp):
                 xmax = xexp
@@ -213,7 +227,7 @@ def downhill_simplex(start, end, dims):
             # We should go back to step 1
             # Recalculate points
         elif fnc2(points[-2]) >= fnc2(xref):
-            print('Adjusting max value')
+            #print('Adjusting max value')
             xmax = xref
         else:
             xp = min(fnc2(xref), fnc2(xmax))
@@ -225,16 +239,20 @@ def downhill_simplex(start, end, dims):
         points_list.append(points)
         points = np.array([xmin, xavg, xmax])
         i += 1
+    print(f'Final simplex is : {points}')
     plot_simplexes(points_list)
 
     
 def main():
-    #plot(p1(-2, 2), 'golden section')
-    #plot(quad_int(-2, 2), 'quadratic')
-    #p2(-5, 5)
+    plot(p1(-2, 2), 'golden section')
+    plot(quad_int(-2, 2), 'quadratic')
+    plt.show()
+    p2(-5, 5)
+    plt.show()
     downhill_simplex(-5, 5, 2)
+    plt.show()
 
-    #plt.show()
+    
 
 
 if __name__== '__main__':
