@@ -192,17 +192,17 @@ This means that we can end with deep decision trees that rely on these columns.
 	\hline
 	Dataset & One-Hot Encoding & Label Encoding \\
 	\hline
-	Heart Disease & & \\
+	Heart Disease & 88.2 & 88.8 \\
 	\hline
 	Bank Marketing & 86.0 & 87.9 \\
 	\hline
-	Income Evaluation & & \\
+	Income Evaluation & 75.8 & 84.6 \\
 	\hline
-	Telco Customers & & \\
+	Telco Customers &75.3 & 78.2\\
 	\hline
-	Abalone & & \\
+	Abalone & 21.7 & 22.2\\
 	\hline
-	IBM Attrition & & \\
+	IBM Attrition & 10.8 & 15.4 \\
 	\hline
 	Biostar Degradation & 81.6 & 86.0 \\
 	\hline
@@ -212,15 +212,15 @@ This means that we can end with deep decision trees that rely on these columns.
 	\hline
 	Travel Insurance  & 74.5 & 80.2 \\
 	\hline
-	Diabetes  & & \\
+	Diabetes  & 92.3 & 97.6 \\
 	\hline
-	Loans & & \\
+	Loans & 78.0 & 76.8 \\
 	\hline
-	Onlne Shopper intention & & \\
+	Onlne Shopper intention & 85.5 & 89.5 \\
 	\hline
 	Teacher Assistant & & \\
 	\hline
-	Churn Modelling & & \\
+	Churn Modelling &73.8 & 84.7\\
 	\hline
 	\end{tabular}
 	\caption{Effects of applying feature standardizaiton.} 
@@ -229,5 +229,7 @@ This means that we can end with deep decision trees that rely on these columns.
 \end{table}
 
 Table~\ref{table:encoding} shows the results of our encoding experiments.
+For the most part, decision trees favor label encoding for categorical features.
+
 
 \end{document}
