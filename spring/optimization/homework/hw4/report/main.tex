@@ -1,0 +1,229 @@
+\documentclass[11pt]{scrartcl}
+\input{../template/structure.tex}
+\usepackage{xeCJK}
+\usepackage{multicol}
+%\usepackage{multiline}
+\usepackage{amsmath}
+\usepackage{breqn}
+\usepackage[backend=biber, style=ieee]{biblatex}
+\addbibresource{src.bib}
+
+\setCJKmainfont{Noto Serif CJK TC}
+\newcommand{\vect}{\boldsymbol}
+\title{ 
+	\normalfont\normalsize
+	\textsc{National Cheng Kung University}\\
+	\vspace{25pt}
+	\rule{\linewidth}{1pt}\\
+	\vspace{20pt}
+	{\huge Optimization Design Homework 4}\\
+	\vspace{12pt}
+	\rule{\linewidth}{2pt}\\
+	\vspace{12pt}
+}
+\author{\Large Andr\'es Ponce \and 彭思安 \and P76107116}
+\date{\normalsize\today}
+
+\begin{document}
+\maketitle
+\section{A cylindrical tank has height $h$ and the radius
+of the top and bottom$=r$ (both in meters). What $h$ and $r$
+values will minimize the total surface area (including top, bottom, 
+and the side) of this cylindrical tank. We are also told the volume
+of this tank is to be fixed (i.e. $\pi r^2h=20m^3$). Please
+reformulate the objective function to include a penalty term, and solve
+the problem numerically using any method we have learned.} 
+
+The surface area of a cylinder is given by 
+\begin{equation}
+	\label{eq:sarea}
+	f(h, r) = 2\pi r(h + r)
+\end{equation}
+and we are asked to find the values of $h$ and $r$ that minimize $f$ subject to
+\[	g(h, r) = \pi r^2h  = 20 \]
+which we rewrite as 
+\begin{equation}
+	\label{eq:constraint}
+	g(h, r) = \pi r^2h  -20 = 0
+\end{equation}
+
+In order to create an objective function with penalty terms, we combine the 
+constraint function and the objective to create 
+\begin{equation}
+		\label{eq:penalty}
+		\varphi(h, r, r_k) = f(h, r) + r_kg(h, r)^2 = 2\pi r(h+r) + r_k(\pi r^2h-20)^2
+\end{equation}
+In our implementation we use the Nelder-Mead algorithm to minimize this new objective function.
+We define a simplex of $n+1$ points and reflect, contract and expand it so that after some iterations
+it contains the minimum point inside of it.
+When the simplex is small enough, our algorithm terminates since the simplex contains the minimum point.
+
+The first step of the Nelder-Mead algorithm is to find the points that yield the highest, lowest,
+and second lowest function value.
+Then we find the average point $x_a$ and determine if our point should be reflected, expanded, 
+or contracted.
+To see if an operation results in a better point for our simplex, we compare the resulting point
+with the min and second to last points.
+
+For our algorithm we use $r_k = 1$, and we find the minimum point is roughly $(2.907, 1.454)$.
+\section{Solve the following muscle force distribution problem. The $F_i$ values are to be solved.
+Values of $A_i, M_i,$ and $d_i$ are given below.}
+\subsection{Minimize 
+\[Z = \sum_{i=1}^{9}(\frac{F_i}{A_i})^2, n=2\]
+subject to 
+\[f_1 = d_1F_1 - d_2F_2-d_{3a}F_3-M_1=0\]
+\[f_2 = -d_{3k}F_3 + d_4F_4+d_{5k}F_5-d_6F_6-d_{7k}F_7-M_2 = 0\]
+\[f_3 = d_{5h}F_5-d_{7h}F_7+d_8F_8-d_9F_9-M_3=0\]
+\[F_i \geq 0, i=1, 2, \dots, 9\]
+M1=4; M2=33; M3=31;
+The values of d1, d2, d3a, d3k, d4, d5k, d5h, d6, d7k, d7h, d8, d9 are included in the following vector: d=[0.0298  0.044  0.044  0.0138  0.0329  0.0329  0.0279  0.025  0.025  0.0619  0.0317  0.0368];
+The values of Ai are also included in the vector A=[11.5  92.5  44.3  98.1  20.1  6.1  45.5  31.0  44.3];
+}
+Following~\cite{RAIKOVA20011243},  we use Lagrange multipliers to minimize this objective.
+Our objective follows the form
+\begin{equation}
+	\label{eq:lagrange}
+	L = \sum_{i=1}^{9}(\frac{F_i}{A_i})^2 + \lambda_1f_1 + \lambda_2f_2 + \lambda_2f_3
+\end{equation}
+We first have to calculate the partial derivatives of $L$ with respect to each muscle force $\frac{\partial L}{\partial F_i}$.
+\begin{multicols}{2}
+	\begin{equation}
+		\label{eq:F1}
+		\frac{\partial L}{\partial F_1} = \frac{2F_1}{11.5^2} + 0.0208\lambda_1
+	\end{equation}
+	\begin{equation}
+		\label{eq:F2}
+		\frac{\partial L}{\partial F_2} = \frac{2F_2}{22.5^2} - 0.044\lambda_1
+	\end{equation}
+\end{multicols}
+\begin{multicols}{2}
+	\begin{equation}
+		\label{eq:F3}
+		\frac{\partial L}{\partial F_3} = \frac{2F_3}{44.3^2} -0.044\lambda_1-0.0138\lambda_2
+	\end{equation}
+	\begin{equation}
+		\label{eq:F4}
+		\frac{\partial L}{\partial F_4} = \frac{2F_4}{49.3^2} - +0.0329\lambda_2 
+	\end{equation}
+\end{multicols}
+\begin{multicols}{2}
+	\begin{equation}
+		\label{eq:F5}
+		\frac{\partial L}{\partial F_5} = \frac{2F_5}{20.1^2} +0.0329\lambda_2+0.0279\lambda_3
+	\end{equation}
+	\begin{equation}
+		\label{eq:F6}
+		\frac{\partial L}{\partial F_6} = \frac{2F_6}{6.1^2} - 0.025\lambda_2 
+	\end{equation}
+\end{multicols}
+\begin{multicols}{2}
+	\begin{equation}
+		\label{eq:F7}
+		\frac{\partial L}{\partial F_7} = \frac{2F_7}{45.5^2} -0.025\lambda_2-0.0619\lambda_3
+	\end{equation}
+	\begin{equation}
+		\label{eq:F8}
+		\frac{\partial L}{\partial F_8} = \frac{2F_8}{31^2} +0.0317\lambda_3
+	\end{equation}
+\end{multicols}
+
+\begin{equation}
+\label{eq:F9}
+\frac{\partial L}{\partial F_9} = \frac{2F_9}{49.3^2} -0.0369\lambda_3
+\end{equation}
+
+We can solve for each $F_i$ in Equations~\ref{eq:F1}~-~\ref{eq:F9} and substitute these values 
+in the constraints $f_1$ to $f_3$.
+When we do so, we obtain
+\begin{equation}
+		\label{eq:f1fill}
+		f_1 = 0.0298(-1.97\lambda_1) - 0.044(11.1375\lambda_1)-0.044(43.17\lambda_1 + 13.52\lambda_2)-4
+\end{equation}
+%\begin{equation}
+		\begin{flalign}
+		\label{eq:f2fill}
+		f_2 = & -0.0138(43.17\lambda_1 + 13.52\lambda_2) + 0.0329(-0.3806\lambda_2) + 0.0329(-6.65\lambda_2-5.6\lambda_3)- \\
+		& 0.025(.46\lambda_2) -0.025(25.88\lambda_2 + 64.07\lambda_3) -33
+		\end{flalign}
+%\end{equation}
+\begin{equation}
+	\label{eq:f3fill}
+	f_3 = 0.0279(-6.65\lambda_2 -5.6\lambda_3)-0.0619(25.88+64.07\lambda_3)+0.0317(-15.23\lambda_3) - 0.0369(44.8\lambda_3)-31
+\end{equation}
+We can solve for $\lambda_1$ in Equation~\ref{eq:f1fill}, $\lambda_2$ in Equation~\ref{eq:f2fill} and $\lambda_3$ in Equation~\ref{eq:f3fill}.
+\begin{equation}
+	\label{eq:lambda1}
+	\lambda_1 = -1.97\lambda_2 -1.34
+\end{equation}
+\begin{equation}
+		\label{eq:lambda2}
+		-0.6\lambda_1 -1.0805\lambda_2-1.78\lambda_3-33=0
+\end{equation}
+\begin{equation}
+		\label{eq:lambda3}
+\lambda_3 = -4.65-.27\lambda_2
+\end{equation}
+
+If we substitute Equation~\ref{eq:lambda1} and Equation~\ref{eq:lambda3} into Equation~\ref{eq:lambda2}, we get
+$\lambda_1 = -93.5557$,
+$\lambda_2 = 46.81$, and 
+$\lambda_3 = -17.2887$.
+
+Then we can figure out the values of $F_i$ by substituting into Equations~\ref{eq:F1}-\ref{eq:F9}.
+\begin{multicols}{2}
+	\begin{equation}
+		\label{eq:f1f}
+		F_1 = 184.31
+	\end{equation}
+	\begin{equation}
+		\label{eq:f2f}
+		F_2 = -1,064.1
+	\end{equation}
+\end{multicols}
+\begin{multicols}{2}
+	\begin{equation}
+		\label{eq:f3f}
+		F_3 = -3,406.06
+	\end{equation}
+	\begin{equation}
+		\label{eq:f4f}
+		F_4 = -1,781.21
+	\end{equation}
+\end{multicols}
+\begin{multicols}{2}
+	\begin{equation}
+		\label{eq:f5f}
+		F_5 = 212.69
+	\end{equation}
+	\begin{equation}
+		\label{eq:f6f}
+		F_6 = 21.53
+	\end{equation}
+\end{multicols}
+\begin{multicols}{2}
+	\begin{equation}
+		\label{eq:f7f}
+		F_7 = 243.9
+	\end{equation}
+	\begin{equation}
+		\label{eq:f8f}
+		F_8 = 111
+	\end{equation}
+\end{multicols}
+\begin{equation}
+	\label{eq:f9f}
+	F_9 = -775.2
+\end{equation}
+
+The results and forms of many of the equations are different than the forms in~\cite{RAIKOVA20011243},
+primarily because the form of the Lagrange function is different.
+We use the form
+\[L(\boldsymbol{F}, \boldsymbol{d}, \boldsymbol{M}, \boldsymbol{A}, \lambda) = Z + \sum_{i}\lambda_ig_i\]
+whereas the paper uses
+\[L(\boldsymbol{F}, \boldsymbol{d}, \boldsymbol{M}, \boldsymbol{A}, \lambda) = Z - \sum_{i}\lambda_ig_i\]
+
+This means the signs when solving for $\lambda_i$ will be different.
+Because some of the forces are negative, violating one of the constraints, $F_2, F_3, F_4, F_5,F_9=0$, meaning they are ``silent''.
+\printbibliography
+\end{document}
+
