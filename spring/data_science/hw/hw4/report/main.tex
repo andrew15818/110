@@ -76,7 +76,7 @@ combinations of encoding and sampling methods.
 	\hline
 	Travel Insurance & 10 & 4 & 6 & 1986 & Binary \\
 	\hline
-	Diabetes & 15 & 1 & 14 & 520 & Binary \\
+	Diabetes & 15 & 14 & 1 & 520 & Binary \\
 	\hline
 	Loans & 10 & 5 & 5 & 399 & Binary \\
 	\hline
@@ -231,5 +231,157 @@ This means that we can end with deep decision trees that rely on these columns.
 Table~\ref{table:encoding} shows the results of our encoding experiments.
 For the most part, decision trees favor label encoding for categorical features.
 
+\section{Which combinations of numerical and categorical feature transformation methods 
+generally lead to better results?}
+In this experiment, we test the different combinations of numerical methods and categorical
+methods.
+We find that there is a difference between different combinations. 
+For instance,frequency encoders followed by LightGBM, label encoders with SVM, frequency and LightGBM.
+label encoding with random forest are all particularly effective combinations.
+MLP encoders might perform comparably to the other methods but often lower when paired with 
+other encoders.
+The LightGBM pairs are usually quite strong, stronger than xgboost, although ensemble methods
+are all very strong performers.
 
+Although ensemble methods and more traditional methods such as SVM perform roughly equal in many 
+scenarios, ensemble methods perform well more consistently than these other methods.
+
+\section{If the number of possible categorical values of a feature is high,
+which encoding methods among }
+To test the relationship of encoding methods and amount of categorical values, 
+we try all the encoding methods and see which datasets have the highest possible categorical
+values.
+Table~\ref{table:p5} shows the results of training a random forest model using three different encoding 
+methods.
+For One-Hot Encoding, we use a Label Encoder for the target column and apply OHE to the feature columns.
+There does not seem to be a large change between the maximum amount of categorical features and the 
+overall accuracy.
+For instance, using target encoding we can achieve high accuracy with high possible categorical values.
+However, since Target Encoding relies on the average of the target values, datasets with many outliers 
+in the target column yield lower accuracy. 
+For instance, the datasets with lowest accuracy are the IBM and Abalone datasets.
+These datasets also have the largest variance in the target column. 
+This causes the encoding to not represent the data as accurately.
+
+One Hot Encoding yields the best results by far, even if we are using  a tree-based method.
+Since OHE adds columns, we can think of OHE as adding a stronger association between a 1 in certain
+columns and the output classification.
+
+
+\begin{table}
+\begin{centering}
+	\begin{tabular}{|c|c|c|c|c|}
+	\hline
+	Dataset & Max Feature Values & target & onehot & label \\
+	\hline
+	Heart Disease & 13 & 88.9 & 100 & 17 \\
+	\hline
+	Income Evaluation & 42 & 85.1 & 100 & 84.9 \\
+	\hline
+	Bank Marketing & 22 & 88.2 & 1.0 & 88.3 \\
+	\hline
+	Telco Customers & 7043 & 77.5 & 100 & 78.6 \\
+	\hline
+	Abalone & 3 & 23.9 & 99.8 & 23 \\
+	\hline
+	IBM Attrition & 6 & 17.3 & 99.7 & 17.1 \\
+	\hline
+	ECommerce & 5 & 66.1 & 100 & 66.6 \\
+	\hline
+	Fuel Consumption & 715 & 78.7 & 100 & 75 \\
+	\hline
+	Travel Insurance  & 2 & 80.8 & 100 & 80.5 \\
+	\hline
+	Diabetes  & 2 & 97.5 & 100 & 97.8 \\ 
+	\hline
+	Loans & 23 & 76.8 & 100 & 79.1 \\
+	\hline
+	Onlne Shopper intention & 10 & 89.5 & 100 & 89.4 \\
+	\hline
+	Churn Modelling & 2932 & 86.3 & 100 & 84.7 \\
+	\hline
+	\end{tabular}
+	\caption{Accuracy on datasets with different amount of categorical values.}
+	\label{table:p5}
+\end{centering}
+\end{table}
+
+
+\section{Compare the classification performance of ``doing nothing'', 7 undersampling,
+4 oversampling, 2 ensemble-based methods in the presence of class imbalance. Which methods
+work generally the best and worst? Why?}
+
+To measure the different types of resampling methods, we go through each file and test the 
+over sampling, under sampling, and ensemble samplng methods, along with a control where we do
+not perform any resampling.
+The performance metric we use is \texttt{sklearn}'s \texttt{precision\_recall\_fscore\_support} metric,
+which compares the ground truth values and our predictions and returns these four values.
+With further analysis we could find more accurate predictions.
+
+Generally speaking, the \texttt{editedNeuralNearestNeighbors} works best among the undersampling methods, 
+while the ovresampling methods tend to achieve higher precision.
+
+\section{Can you find which SMOTE-based oversampling works better on which datasets?}
+SMOTE-based oversampling achievies comparable precision results with undersampling methods. 
+However, SMOTE-based oversampling does achieve better results on some datasets.
+For instance, the diabetes dataset has almost all categorical features. 
+All sampling methods perform here across all scores, not only precision.
+The income evaluation dataset also has many categorical features, and we find the oversampling 
+methods work better on these types of datasets.
+
+Figure~\ref{fig:dists} shows that these two specific datasets are both binary classification tasks
+and the degree of imbalance is not as great as the other datasets.
+
+\section{Is a dataset's imbalance ratio (e.g. \%Pos) related to choosing which resampling 
+strategy for better performance? Any insights?}
+To answer this question, we can see the classes with the highest imbalance in Figure~\ref{fig:dists}.
+The Bank Marketing (``dataset'' in Figure~\ref{fig:dists}) has one of the highest signs of imbalance 
+among the datasets.
+In our experiments this dataset was one of the poorest performers for oversampling methods, 
+suggesting that the imbalance ratio plays a large part across the metrics, since all the 
+four metrics are much lower.
+However, undersampling methods seem less affected by this extreme imabalance.
+
+In the Churn Modelling dataset the imbalance does not seem to affect the performance as much as the 
+Bank Marketing dataset, although all the metrics are lower across the board compared to less imbalanced
+datasets.
+The precision on the Churn Modelling dataset is slightly lower among the oversampling methods compared 
+to undersampling methods.
+The recall among the undersampling methods suggests that undersampling methods might be more effective 
+when there are extreme imbalances in data, while both approaches are comparable in less extrmeme 
+scenarios.
+
+\section{How do different ML algorithms (Random Forest, XGBoost, LightGBM, MLP, SVM) prefer different
+resampling strategies for better performance of imbalance classification?}
+Ensemble methods such as Random Forest and XGBoost, which rely on minimizing the impurity in splits.
+For these methods, methods such as Neighborhood Cleaning Rule method can remove the 
+points right along the decision border that could lead to decreased performance.
+A mitigating factor could be that with many random forests the effects of imbalance could be mitigated a 
+little.
+High-dimensional methods also would benefit from ensemble methods which, at the cost of increased training time, 
+address the main issues of SMOTE-based oversampling methods.
+
+Multi-Layer Perceptrons are useful for high dimensional inputs, and could learn a more fine-grained 
+decision boundary for points that are on the decision boundary.
+The nearmiss undersampling method could help increase the linear separability by removing the closest $k$
+majority class samples. 
+This could highlight the difference among the majority of the class samples, helpful to SVM.
+
+\section{Conclusion}
+In this assignment we considered many different feature encoding and sampling methods.
+The objective of these methods is to elminate some of the uncertainty and unpredictability 
+that often happen when sampling data.
+We considered the different scenarios, combinations, and use cases where these methods can be 
+useful for us.
+While there is no ``best'' method, different factors, e.g. imbalance ratio, can affect the best
+choice of encoder and sampling method across datasets.
+Another finding is that more ``complex''or newer methods are not always better. 
+XGBoost, which has become a very popular ensemble method in recent years, does not perform 
+universally better than a simpler method such as SVM.
+
+This assignment was useful in allowing us to explore the combinations of encoding methods which 
+are not often taught.
+Although getting such different encoders and samplers to work uniformly on every dataset required
+much work, it is still a very useful excercise, especially for future projects where we run into 
+imbalanced data or categorical data.
 \end{document}
