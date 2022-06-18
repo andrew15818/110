@@ -10,6 +10,9 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{centernot}
+\usepackage{caption}
+\captionsetup[figure]{font=small}
+
 \addbibresource{report.bib}
 
 \graphicspath{{imgs}}
@@ -21,7 +24,7 @@
 \begin{document}
 \title{Data Science Final Project Report}
 \author{\IEEEauthorblockN{Andr\'es Ponce}
-		\IEEEauthorblockA{\textit{Department of Computer Science} \\
+		\IEEEauthorblockA{\textit{Department of Computer Science and Information Engineering} \\
 		\textit{National Cheng Kung University} \\
 		Tainan, Taiwan \\
 		andresponce@ismp.csie.ncku.edu.tw}
@@ -73,13 +76,13 @@ invariant factors and be able to distinguish similar products from each other.
 
 \section{Competition Description}
 \label{sec:description}
-Current image datasets do not focus enough on super fine-grained object detection.
-This prompted the authors to create the eProduct dataset focusing on fine-grained
+Current image datasets do not focus enough on super fine-grained object detection and classification.
+This prompted the organizers to create the eProduct dataset focusing on fine-grained
 visual recognition.
 The dataset is divided into training, validation, and query sections. 
 
 The training set consists of around 1.3 million labeled images modelled after the ImageNet~\cite{deng2009imagenet} dataset.
-Each image also comes with three levels of hierarchical labels: its meta class (16 total), level 2 class (17 total),
+Each image comes with three levels of hierarchical labels: its meta class (16 total), level 2 class (17 total),
 and the leaf class (1,000 total) as well as the product title and a unique identifier.
 Also like ImageNet, the validation set contains 50,000 images, each containing the same information 
 for each image as the training set.
@@ -105,6 +108,7 @@ Source:~\cite{jiangbo2021ebay}}
 \end{figure}
 
 \section{Related Work}
+\label{sec:related}
 There are many different approaches to dealing with image similarity and image 
 ranking.
 Listwise loss~\cite{revaud2019learning} tries to rank the images in an index set that are 
@@ -124,7 +128,7 @@ This means that $p_y$ can act as a proxy for each class, and the greater the pro
 vector $x$ the greater the chance it belongs in that class.
 By using the proxy information, the normalized softmax maximizes the distance between different class
 proxies.
-The class-balanced sampling benefits from larger class sizes, which were not possible on our hardware.
+The class-balanced sampling benefits from larger batch sizes, which were not possible on our hardware.
 Another issue for this approach is that the eProduct dataset is highly imabalanced, which means that 
 if $S$ samples from $C$ classes were sampled each iteration, some inputs would be seen by our model
 much more often than samples of other classes.
@@ -132,7 +136,7 @@ The datasets tested in the paper are not imbalanced.
 
 Twin bottleneck hashing~\cite{shen2020auto} uses the output of a feature extractor $x\in\mathbb{R}^D$
 to construct a continuous output $z$ and a binary hash vector $\boldsymbol{b}$.
-The continous $z$ passes through a Graph Convolutional Network (GNN) based on the adjacency
+The continuous $z$ passes through a Graph Convolutional Network (GNN) based on the adjacency
 matrix $A$ built from the binary hashes in the batch.
 The final result $z'$ goes through two fully connected layers that act as the decoder.
 The proposed model seemed too complex for our problem, given it uses both a feature extractor and a GCN
@@ -160,18 +164,22 @@ The idea behind using a deep model is to obtain a vector $z$ that captures the i
 information of an image.
 The contents of the vector should be informed not only by the image contents, but also the 
 hierarchical descriptions given as part of the training data.
-Since there are three hierarchical levels of information (meta class, level 2, leaf categories),
+Since there are three hierarchical levels of information (meta , level 2, and leaf),
 our model should produce similar embeddings for products in similar categories.
 This means our model should incorporate this information in some way during training.
 
 However, the categories are not independent of each other.
 For example, if a product belongs to a certain meta category, 
-there is only a subset of child level 2 categories, and similar for 
-child classes.
+it can only belong to a subset of level 2 classes, and similar for 
+leaf categories.
 Our model should take these parent-child relationships into account.
 
 We based our work on Deep Hierarchical Classification~\cite{gao2020deep} (DHC), since this model seemed 
 specifically designed for hierarchical e-commerce classification.
+The loss uses information from the hierarchies to make sure the child class and parent class actually
+have this relationship.
+With the meta, level 2, and leaf categories in our training data this method was appealing.
+
 The architecture contains a flat neural network(FNN) $f(\theta)$ which generates a representation 
 for each hierarchical layer $R'_l$. 
 This representation is the concatenation of the previous hierarchical layer's representation
@@ -186,11 +194,13 @@ function.
 		lloss_l = -\sum_{j=0}^{|l|} y_{lj} \log (\tilde{y}_{lj})
 		\label{eq:lloss}
 \end{equation}
-where $y_{lj}$ is the expected output on the $j$th class of the $l$th layer.
+where $y_{lj}$ is the expected output on the $j$th class of the $l$th hierarchical layer.
 
 The dependence loss aims to capture the parent-child relationship among our predicted class labels
 for hierarchical levels.
 The loss function penalizes an incorrect parent-child relationship with terms $\mathbb{D}$ and $\mathbb{I}$.
+The symbol $\mathbb{D}$ indicates whether our prediction for layer $l$ is a child of our prediction at layer $l-1$,
+and $\mathbb{I}$ indicates whether our guess for the current layer is correct.
 \begin{equation}
 		dloss_l = -(ploss_{(l-1)})^{\mathbb{D}_{l}\mathbb{I}_{l-1}}(ploss_l)^{\mathbb{D}_l\mathbb{I}_l}
 \end{equation}
@@ -282,7 +292,7 @@ impact on our predictions.
 
 One of the main problems when inserting the index set embeddings was the size of the hashtable.
 Since a single hashtable could not fit into main memory at once, 
-we had to create a separate hashtable for every $8,000$ images, or 1000 batches, and write 
+we had to create a separate hashtable for every $8,000$ images, or $1,000$ batches, and write 
 it separately to disk.
 In the end we had $137$ hashtables to query per image, increasing
 the computation cost of inference significantly.
@@ -327,6 +337,7 @@ not possible.
 In this section we analyse some of the reasons we believe led to poor performance on the 
 competition.
 \begin{enumerate}
+		\item{The dataset is highly imbalanced.}
 		\item{DHC trained and tested the model on CIFAR-100~\cite{krizhevsky2009learning}, which
 				contains many less classes. The authors use their own split of the dataset and predict
 				only two hierarchical layers.
@@ -334,6 +345,18 @@ competition.
 		\item{Overestimating importance of hierarchical information.}
 		\item{Too high of a distance cuttoff, leading to excess of candidates.}
 \end{enumerate}
+\begin{figure}[!t]
+		\centering
+		\includegraphics[scale=0.6]{accs}
+		\caption{Sample number per class and accuracy in meta and level 2 categories
+			on the validation set.
+			Although less noticeable for meta class, there is a clear upward trend
+			between sample number per class and model accuracy.
+		}
+		\label{fig:accs}
+\end{figure}
+
+
 \begin{figure}[!t]
 		\includegraphics[width=0.5\textwidth]{retrieval}
 		\caption{Sample query images and their cosine distances with some similar and dissimilar items in the matching set.
@@ -345,9 +368,21 @@ competition.
 		}
 		\label{fig:retrieval}
 \end{figure}
+
+\subsection{Imbalanced Dataset}
+This dataset is highly imbalanced, making it harder for our model to learn classes which do not contain many 
+samples.
+For instance, some categories have no samples in the training set.
+\figurename\ref{fig:accs} shows our model's accuracy on the validation set changes with the number of samples for the 
+meta and level 2 categories.
+For the level 2 cateogires, our accuracy is very low for images with few samples, and there is still a large variance
+with classes that have around 100-500 samples.
+The hardest classes to predict are those with fewer samples.
+
+
 \subsection{Different Class Numbers}
-The CIFAR-100 dataset contains only one $100$ classes each containing $600$ images per class.
-The authors of DHC split the dataset according to the coarse and fine labels.
+The CIFAR-100 dataset contains only $100$ classes each containing $600$ images.
+The authors of DHC split the dataset according to coarse and fine labels.
 That means that there are many times less images than our dataset.
 Furthermore, the authors do not perform image retrieval tests, only classification.
 
@@ -358,7 +393,7 @@ Furthermore, the authors do not perform image retrieval tests, only classificati
 %($3,000$ total) took around two days.
 %This meant that I could not carry out many modifications by the time the competition deadline arrived.
 %Most sources~\cite{agrawal2019finding}~\cite{gupta2018locality} do not mention the case when 
-\subsection{Overestimation of Hierarchical Information}
+\subsection{Overestimation of Hierarchical Information Relevance}
 The training dataset, which was all that we had at the beginning of the competition,
 contains three levels of hierarchical labels as described in Sec.~\ref{sec:description}.
 When choosing a model, we thought that these labels could allow us to more precisely match
@@ -367,25 +402,23 @@ In the final result, the label informaiton played little part in the hashing and
 It might be the case that the model embeddings did not have sufficient intra-class variance, 
 and that all inputs that belonged to the same set of hierarchical classes resulted in embeddings that were too 
 similar.
-
-As described in Sec.~\ref{sec:training}, concatenating the class predictions when inserting them
-might have given  too much importance to the meta and level 2 class predictions.
-We are after embeddings that are similar for objects that belong to the same category but not
+We want embeddings that are similar for objects that belong to the same category but not
 \emph{so} similar that cannot further distinguish between different products.
 
 \subsection{Too Lenient Distance}
-The ideal is to minimize the cosine distance in Eq.~\ref{eq:cosinesim}.
+The ideal is to minimize the cosine distance in Eq.~\ref{eq:cosinesim} for 
+hashes of identical products.
 Two identical images will have distance of $0$.
-For our experiments, we used considered all images with similarity less than 
+For our experiments, we considered all images with similarity less than 
 $0.1$ as matches.
-However, this might have been too lenient, as some our images ended up with quite 
-a lot of mathces.
+We believe this was too large, as some of the testing images had too many matches,
+most of which were similar but not the same product.
 Having a stricter distance requirement might have helped our precision, although as 
 mentioned above, re-evaluating the query set would have taken too much time.
 Since most of our team's submissions were made in the last couple of days before the 
 end of the competition, it was not possible to run different experiments.
 
-However, coming up with a strict distance cutoff is quite challenging.
+Coming up with a strict distance cutoff is quite challenging.
 Fig.\ref{fig:retrieval} illustrates this dilemma for two sample query images.
 In the first row, the cosine distance is given between a sample query image and 
 images our model predicts as referring to the same product.
@@ -405,6 +438,39 @@ We believe the issue with our model comes down to the \emph{fine-grained} aspect
 competition.
 Given many distractors, our model can only pick up that they are the same type of object
 but not different products.
+
+\section{Alternatives}
+With a little more understanding of why our network failed to learn the fine-grained
+features necessary, we can introduce some alternative approaches that might perform
+better.
+Sec.~\ref{sec:related} introduces other approaches we considered for our project
+proposal; here we discuss other alternatives that we investigated having 
+finished the project.
+
+A popular recent approach to unlabeled data is self-supervised learning, where our model can still make
+classification predictions without needing labels.
+Models such as SimCLR~\cite{chen2020simple} take an image $x$ and produce two \emph{views} $x^a$ and $x^+$ by applying
+different augmentations to the image.
+The view $x^a$ is the anchor view, and we want to find $x^+$ from all the images in the batch.
+The loss function is usually some form of contrastive loss, where similar images are pulled closer together
+and different images are pushed further in the embedding space. 
+Self-supervised learning could have been very helpful in this project.
+For example, if our belief is correct that the hierarhcical labels in the training 
+set were not as useful as we thought, that would leave us with just the unlabeled images.
+
+
+Other methods specifically focus on fine-grained visual recognition.
+In \cite{zheng2019towards} the authors project the image features onto a hypersphere and
+minimize the Euclidean distance between positive samples.
+This requires labeled samples to train, and the labels present in the eProduct dataset
+might not be discriminative enough.
+\cite{wei2017selective} uses unsupervised learning to add the activations of all
+the feature maps after a pooling layer.
+The idea is that if an area is activated in many feature maps, the likelihood is
+higher that it contains an object.
+The unsupervised aspect might be helpful in finding the fine-grained differences
+between similar products.
+
 \section{Conclusion}
 Joining the eBay eProduct Visual Search Challenge was quite an educational experience.
 We did not have any knowledge of visual search before joining this competition, and even though 

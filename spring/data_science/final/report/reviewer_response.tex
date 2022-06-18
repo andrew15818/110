@@ -1,0 +1,45 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{xeCJK}
+\usepackage[backend=biber,citestyle=ieee]{biblatex}
+\addbibresource{report.bib}
+
+\setCJKmainfont{Noto Serif CJK TC}
+\title{Data Science Final Project Reviewer Response}
+\author{彭思安 \\
+Andr\'es Ponce\\
+P76107116
+}
+
+\begin{document}
+\maketitle
+\section{Why did you choose this specific model? What did you learn?}
+Thank you Professor 鄭 for your questions.
+We chose Deep Hierarchical Embedding~\cite{gao2020deep} for its focus on hiearchical learning, since that
+was information available in the training data.
+We state the reasons we initially chose our model in Sec. 4a when we introduce the deep learning portion of our approach.
+After training and evaluation we realized this model was not suited for the competition, since the hierarchical
+information in the training set might not have been as useful as we thought.
+
+
+\section{Consider other fine-grained approaches or contrastive learning.}
+We thank Professor 許 for the feedback.
+Section III ``Related Work'' introduces the approaches we considered at the beginning for the project proposal.
+Using some of the insights from the competiton, we investigate contrastive learning approaches and 
+fine-grained networks towards the end of the report in a 
+section called ``Alternatives''. 
+We investigated these methods after the competition knowing the problems we encountered.
+In the future we wish to evaluate our validation set with these approaches, since they might better handle the tough 
+images in this competition.
+
+\section{Analyze which classes are harder for the model to classify.}
+Thank you Professor 李 for the valuable suggestion.
+We added a figure in the report comparing the accuracy in meta and level 2 categories as the number of samples increases.
+We found that there is a large variance in accuracies when the classes have few samples: some classes are easier to identify 
+than others even with fewer samples.
+We noticed the accuracies varied less with classes that have around 150 samples or more.
+Even then, there was a clear overall increase in accuracy for both meta and level 2 categories as the samples increased per class.
+Since our dataset was imbalanced, the hardest classes to reliably classify are those with fewer samples.
+
+\printbibliography
+\end{document}
